@@ -1,0 +1,34 @@
+{
+  "name": "cyberguard-pro",
+  "version": "1.0.0",
+  "description": "A comprehensive cybersecurity platform using MERN stack",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm start",
+    "build": "cd client && npm run build",
+    "install-server": "cd server && npm install",
+    "install-client": "cd client && npm install",
+    "install-all": "npm run install-server && npm run install-client",
+    "test": "cd server && npm test && cd ../client && npm test",
+    "test:e2e": "playwright test --config=playwright.config.js",
+    "test:e2e:headed": "playwright test --config=playwright.config.js --headed",
+    "test:e2e:ui": "playwright test --config=playwright.config.js --ui",
+    "test:e2e:debug": "playwright test --config=playwright.config.js --debug",
+    "heroku-postbuild": "npm run install-all && npm run build"
+  },
+  "keywords": [
+    "cybersecurity",
+    "mern",
+    "vulnerability-scanner",
+    "threat-monitoring"
+  ],
+  "author": "Potato_Coders",
+  "license": "MIT",
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "concurrently": "^7.6.0",
+    "playwright": "^1.40.0"
+  }
+}
