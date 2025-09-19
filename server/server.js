@@ -22,6 +22,16 @@ const realTimeMetrics = require('./services/realTimeMetrics');
 const vulnerabilityScanner = require('./services/vulnerabilityScanner');
 
 const app = express();
+
+// Basic env validation and startup summary
+const requiredForAuth = ['JWT_SECRET'];
+const missing = requiredForAuth.filter((k) => !process.env[k] || process.env[k].trim() === '');
+if (missing.length) {
+  console.warn('[Config] Missing critical env vars:', missing.join(', '));
+}
+const hasApiKeys = ['VIRUSTOTAL_API_KEY', 'SHODAN_API_KEY', 'HIBP_API_KEY']
+  .some((k) => process.env[k] && process.env[k].trim() !== '');
+console.log(`[Config] Threat intel mode: ${hasApiKeys ? 'LIVE' : 'DEMO'} (${hasApiKeys ? 'API keys detected' : 'no API keys'})`);
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
@@ -87,7 +97,17 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime(),
+    config: {
+      clientUrl: process.env.CLIENT_URL ? 'set' : 'default',
+      mongodb: !!(process.env.MONGODB_URI),
+      websocket: 'enabled',
+      apiKeys: {
+        virustotal: !!process.env.VIRUSTOTAL_API_KEY,
+        shodan: !!process.env.SHODAN_API_KEY,
+        hibp: !!process.env.HIBP_API_KEY
+      }
+    }
   });
 });
 

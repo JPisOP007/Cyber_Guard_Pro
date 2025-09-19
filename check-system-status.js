@@ -1,7 +1,24 @@
 // System Status Checker
 // Run this after starting your server to verify everything works
 
-const axios = require('axios');
+async function fetchJson(url, { method = 'GET', body, timeout = 5000 } = {}) {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const res = await fetch(url, {
+      method,
+      headers: body ? { 'Content-Type': 'application/json' } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+      signal: controller.signal
+    });
+    const text = await res.text();
+    let data;
+    try { data = JSON.parse(text); } catch { data = text; }
+    return { ok: res.ok, status: res.status, data };
+  } finally {
+    clearTimeout(id);
+  }
+}
 
 async function checkSystemStatus() {
   console.log('🔍 CyberGuard Pro System Status Check\n');
@@ -16,8 +33,8 @@ async function checkSystemStatus() {
   // Check 1: Server Health
   console.log('1️⃣  Checking server health...');
   try {
-    const response = await axios.get('http://localhost:5000/api/health', { timeout: 5000 });
-    if (response.data.status === 'OK') {
+    const response = await fetchJson('http://localhost:5000/api/health', { timeout: 5000 });
+    if (response.ok && response.data.status === 'OK') {
       console.log('✅ Server: Running and healthy');
       console.log(`   Uptime: ${Math.floor(response.data.uptime)} seconds`);
       checks.server = true;
@@ -33,8 +50,8 @@ async function checkSystemStatus() {
   // Check 2: Real-time Metrics
   console.log('2️⃣  Checking real-time metrics...');
   try {
-    const response = await axios.get('http://localhost:5000/api/metrics/realtime', { timeout: 5000 });
-    if (response.data.success) {
+    const response = await fetchJson('http://localhost:5000/api/metrics/realtime', { timeout: 5000 });
+    if (response.ok && response.data.success) {
       console.log('✅ Metrics API: Working');
       
       const data = response.data.data;
@@ -77,8 +94,8 @@ async function checkSystemStatus() {
   // Check 3: Force metrics refresh
   console.log('3️⃣  Testing metrics refresh...');
   try {
-    const response = await axios.post('http://localhost:5000/api/metrics/refresh', {}, { timeout: 10000 });
-    if (response.data.success) {
+    const response = await fetchJson('http://localhost:5000/api/metrics/refresh', { method: 'POST', timeout: 10000 });
+    if (response.ok && response.data.success) {
       console.log('✅ Metrics Refresh: Working');
       console.log('   Metrics can be updated on demand');
     }

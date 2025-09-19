@@ -166,8 +166,10 @@ export const settingsAPI = {
     });
   },
   testEmailSettings: (emailConfig) => api.post('/settings/test-email', emailConfig),
-  generateApiKey: () => api.post('/settings/api-key/generate'),
-  revokeApiKey: () => api.delete('/settings/api-key'),
+  // User API key management (align with server routes)
+  getApiKey: () => api.get('/users/api-key'),
+  generateApiKey: () => api.post('/users/api-key/regenerate'),
+  revokeApiKey: () => api.delete('/users/api-key'),
 };
 
 // Utility functions

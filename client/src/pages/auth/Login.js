@@ -150,7 +150,7 @@ const Login = () => {
                 onChange={handleChange}
                 error={!!errors.email}
                 helperText={errors.email}
-                data-testid="email-input"
+                inputProps={{ 'data-testid': 'email-input' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -171,7 +171,7 @@ const Login = () => {
                 onChange={handleChange}
                 error={!!errors.password}
                 helperText={errors.password}
-                data-testid="password-input"
+                inputProps={{ 'data-testid': 'password-input' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">

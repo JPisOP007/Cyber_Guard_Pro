@@ -69,7 +69,7 @@ async function testApiKeys() {
     try {
       const options = {
         hostname: 'www.virustotal.com',
-        path: `/api/v3/users/${process.env.VIRUSTOTAL_API_KEY}`,
+        path: `/api/v3/users/me`,
         method: 'GET',
         headers: {
           'X-Apikey': process.env.VIRUSTOTAL_API_KEY
@@ -80,9 +80,15 @@ async function testApiKeys() {
       
       if (response.status === 200) {
         console.log('✅ VirusTotal API: WORKING');
-        console.log(`   - User: ${response.data.data?.attributes?.display_name || 'Unknown'}`);
-        console.log(`   - Quota: ${response.data.data?.attributes?.quotas?.api_requests_daily?.allowed || 'Unknown'} requests/day`);
+        console.log(`   - User: ${response.data.data?.attributes?.username || response.data.data?.id || 'Unknown'}`);
+        const daily = response.data.data?.attributes?.quotas?.api_requests_daily;
+        if (daily) {
+          console.log(`   - Quota: ${daily.allowed || 'Unknown'} allowed / ${daily.used || 0} used today`);
+        }
         results.virustotal = true;
+      } else {
+        console.log(`❌ VirusTotal API: HTTP ${response.status}`);
+        console.log(`   - Body: ${typeof response.data === 'string' ? response.data : JSON.stringify(response.data)}`);
       }
     } catch (error) {
       console.log('❌ VirusTotal API: FAILED');
@@ -129,7 +135,7 @@ async function testApiKeys() {
     try {
       const options = {
         hostname: 'haveibeenpwned.com',
-        path: '/api/v3/breaches',
+        path: `/api/v3/breaches`,
         method: 'GET',
         headers: {
           'hibp-api-key': process.env.HIBP_API_KEY,
@@ -138,11 +144,14 @@ async function testApiKeys() {
       };
 
       const response = await httpsRequest(options);
-      
       if (response.status === 200) {
         console.log('✅ HIBP API: WORKING');
-        console.log(`   - Recent breaches available: ${Array.isArray(response.data) ? response.data.length : 'Unknown'}`);
+        const count = Array.isArray(response.data) ? response.data.length : 'Unknown';
+        console.log(`   - Recent breaches available: ${count}`);
         results.hibp = true;
+      } else {
+        console.log(`❌ HIBP API: HTTP ${response.status}`);
+        console.log(`   - Body: ${typeof response.data === 'string' ? response.data : JSON.stringify(response.data)}`);
       }
     } catch (error) {
       console.log('❌ HIBP API: FAILED');

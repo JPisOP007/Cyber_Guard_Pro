@@ -1,0 +1,87 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]: CyberGuard Pro
+      - generic [ref=e10]: Live
+      - button "0" [ref=e11] [cursor=pointer]:
+        - generic [ref=e12] [cursor=pointer]:
+          - img [ref=e13] [cursor=pointer]
+          - generic: "0"
+      - button "DU" [ref=e15] [cursor=pointer]:
+        - generic [ref=e16] [cursor=pointer]: DU
+  - navigation [ref=e17]:
+    - generic [ref=e19]:
+      - generic [ref=e20]:
+        - img [ref=e21]
+        - generic [ref=e23]: CyberGuard Pro
+        - paragraph [ref=e24]: Cybersecurity Platform
+      - separator [ref=e25]
+      - list [ref=e26]:
+        - listitem [ref=e27]:
+          - button "Dashboard" [ref=e28] [cursor=pointer]:
+            - img [ref=e30] [cursor=pointer]
+            - generic [ref=e33] [cursor=pointer]: Dashboard
+        - listitem [ref=e34]:
+          - button "Vulnerability Scanner" [ref=e35] [cursor=pointer]:
+            - img [ref=e37] [cursor=pointer]
+            - generic [ref=e40] [cursor=pointer]: Vulnerability Scanner
+        - listitem [ref=e41]:
+          - button "Threat Monitor" [active] [ref=e42] [cursor=pointer]:
+            - img [ref=e44] [cursor=pointer]
+            - generic [ref=e47] [cursor=pointer]: Threat Monitor
+        - listitem [ref=e48]:
+          - button "Security Training" [ref=e49] [cursor=pointer]:
+            - img [ref=e51] [cursor=pointer]
+            - generic [ref=e54] [cursor=pointer]: Security Training
+        - listitem [ref=e55]:
+          - button "Reports" [ref=e56] [cursor=pointer]:
+            - img [ref=e58] [cursor=pointer]
+            - generic [ref=e61] [cursor=pointer]: Reports
+        - listitem [ref=e62]:
+          - button "Settings" [ref=e63] [cursor=pointer]:
+            - img [ref=e65] [cursor=pointer]
+            - generic [ref=e68] [cursor=pointer]: Settings
+      - separator [ref=e69]
+      - generic [ref=e70]:
+        - paragraph [ref=e71]: Quick Status
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - paragraph [ref=e74]: Active Threats
+            - generic [ref=e76]: "0"
+          - generic [ref=e77]:
+            - paragraph [ref=e78]: Running Scans
+            - generic [ref=e80]: "0"
+  - main [ref=e81]:
+    - generic [ref=e83]:
+      - heading "Real-time Threat Monitor" [level=1] [ref=e84]
+      - alert [ref=e85]:
+        - img [ref=e87]
+        - generic [ref=e89]: Real-time monitoring active - receiving live threat data
+      - generic [ref=e90]:
+        - generic [ref=e93]:
+          - heading "0" [level=4] [ref=e94]
+          - paragraph [ref=e95]: Total Threats
+        - generic [ref=e98]:
+          - heading "0" [level=4] [ref=e99]
+          - paragraph [ref=e100]: Critical
+        - generic [ref=e103]:
+          - heading "0" [level=4] [ref=e104]
+          - paragraph [ref=e105]: High
+        - generic [ref=e108]:
+          - heading "0" [level=4] [ref=e109]
+          - paragraph [ref=e110]: Medium
+        - generic [ref=e113]:
+          - heading "0" [level=4] [ref=e114]
+          - paragraph [ref=e115]: Low
+      - generic [ref=e117]:
+        - generic [ref=e118]:
+          - img [ref=e119]
+          - heading "Live Threat Feed" [level=6] [ref=e121]
+          - generic [ref=e122]:
+            - img [ref=e123]
+            - generic: "0"
+        - paragraph [ref=e127]: Monitoring for threats... No threats detected yet.
+```
