@@ -95,8 +95,6 @@ const Register = () => {
     }
   }
 
-  // Background handled by shared PotatoBackground
-
   if (loading) {
     return (
       <div style={{
@@ -112,7 +110,7 @@ const Register = () => {
         <div style={{
           padding: '2rem',
           backgroundColor: 'rgba(139, 69, 19, 0.9)',
-          borderRadius: '40px',
+          borderRadius: '72% 28% 65% 35% / 43% 57% 41% 59%',
           color: '#FFF8DC',
           textAlign: 'center',
           fontSize: '1.2rem',
@@ -287,20 +285,69 @@ const Register = () => {
         `}
       </style>
 
-      {/* Auth card as uneven potato-like blob */}
+      {/* Potato-shaped container with irregular, bumpy edges */}
       <div style={{
         width: 'min(98vw, 560px)',
         maxWidth: '560px',
         background: '#b8742a',
-        borderRadius: '56% 44% 58% 42% / 50% 50% 48% 52%',
+        // More irregular potato-like border-radius with uneven bumps
+        borderRadius: '72% 28% 65% 35% / 43% 57% 41% 59%',
         boxShadow: '12px 12px 0 rgba(0,0,0,0.25)',
-        padding: '140px 54px 74px 54px',
+        // Increased padding to ensure content doesn't get clipped by irregular edges
+        padding: '120px 70px 80px 70px',
         marginTop: '24px',
         position: 'relative',
         zIndex: 10,
         animation: 'slideUp 0.5s ease-out',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        // Add subtle texture variations to make it look more potato-like
+        background: 'linear-gradient(125deg, #b8742a 0%, #a66a25 25%, #c17f2f 60%, #b8742a 85%, #a66a25 100%)',
       }}>
+        {/* Add some subtle "potato eyes" or indentations */}
+        <div style={{
+          position: 'absolute',
+          top: '30px',
+          right: '60px',
+          width: '10px',
+          height: '14px',
+          background: 'rgba(139, 69, 19, 0.35)',
+          borderRadius: '70% 30% 60% 40%',
+          transform: 'rotate(-25deg)',
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          top: '60px',
+          left: '45px',
+          width: '8px',
+          height: '11px',
+          background: 'rgba(139, 69, 19, 0.25)',
+          borderRadius: '50% 50% 70% 30%',
+          transform: 'rotate(35deg)',
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          bottom: '50px',
+          right: '40px',
+          width: '9px',
+          height: '12px',
+          background: 'rgba(139, 69, 19, 0.3)',
+          borderRadius: '60% 40% 50% 50%',
+          transform: 'rotate(-45deg)',
+        }}></div>
+
+        <div style={{
+          position: 'absolute',
+          bottom: '80px',
+          left: '50px',
+          width: '7px',
+          height: '9px',
+          background: 'rgba(139, 69, 19, 0.2)',
+          borderRadius: '40% 60% 30% 70%',
+          transform: 'rotate(15deg)',
+        }}></div>
+
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
             <h1 style={{
@@ -346,6 +393,7 @@ const Register = () => {
                   placeholder=""
                   autoComplete="given-name"
                 />
+                {errors.firstName && <div className="error-text">{errors.firstName}</div>}
               </div>
               <div className="input-container-half" style={{ flex: 1 }}>
                 <label className="input-label">Last Name</label>
@@ -358,6 +406,7 @@ const Register = () => {
                   placeholder=""
                   autoComplete="family-name"
                 />
+                {errors.lastName && <div className="error-text">{errors.lastName}</div>}
               </div>
             </div>
 
@@ -375,8 +424,6 @@ const Register = () => {
               />
               {errors.email && <div className="error-text">{errors.email}</div>}
             </div>
-
-            {/* Company/Job title removed for a cleaner form */}
 
             {/* Password Field */}
             <div className="input-container">

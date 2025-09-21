@@ -75,8 +75,6 @@ const Login = () => {
     }
   };
 
-  // Decorative blobs removed; replaced by PotatoBackground SVG
-
   if (loading) {
     return (
       <div style={{
@@ -92,7 +90,7 @@ const Login = () => {
         <div style={{
           padding: '2rem',
           backgroundColor: 'rgba(139, 69, 19, 0.9)',
-          borderRadius: '40px',
+          borderRadius: '68% 32% 74% 26% / 41% 56% 44% 59%',
           color: '#FFF8DC',
           textAlign: 'center',
           fontSize: '1.2rem',
@@ -255,23 +253,61 @@ const Login = () => {
           }
         `}
       </style>
-      {/* SVG potato background provides decoration */}
 
+      {/* Potato-shaped container with irregular, bumpy edges */}
       <div style={{
         width: 'min(96vw, 460px)',
         maxWidth: '460px',
         background: '#b8742a',
-        borderRadius: '55% 45% 55% 45% / 52% 48% 52% 48%',
+        // More irregular potato-like border-radius with uneven bumps
+        borderRadius: '68% 32% 74% 26% / 41% 56% 44% 59%',
         boxShadow: '12px 12px 0 rgba(0,0,0,0.25)',
-        padding: '108px 50px 66px 50px',
-        marginTop: '18px',
+        // Increased padding to ensure content doesn't get clipped by irregular edges
+        padding: '100px 60px 70px 60px',
+        marginTop: '14px',
         position: 'relative',
         zIndex: 10,
         animation: 'slideUp 0.5s ease-out',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        // Add subtle texture variations to make it look more potato-like
+        background: 'linear-gradient(135deg, #b8742a 0%, #a66a25 30%, #c17f2f 70%, #b8742a 100%)',
       }}>
+        {/* Add some subtle "potato eyes" or indentations */}
+        <div style={{
+          position: 'absolute',
+          top: '25px',
+          right: '40px',
+          width: '8px',
+          height: '12px',
+          background: 'rgba(139, 69, 19, 0.3)',
+          borderRadius: '50% 70% 40% 60%',
+          transform: 'rotate(-15deg)',
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          top: '45px',
+          left: '35px',
+          width: '6px',
+          height: '10px',
+          background: 'rgba(139, 69, 19, 0.2)',
+          borderRadius: '60% 40% 70% 30%',
+          transform: 'rotate(25deg)',
+        }}></div>
+        
+        <div style={{
+          position: 'absolute',
+          bottom: '40px',
+          right: '50px',
+          width: '7px',
+          height: '9px',
+          background: 'rgba(139, 69, 19, 0.25)',
+          borderRadius: '40% 60% 50% 50%',
+          transform: 'rotate(45deg)',
+        }}></div>
+
         <div style={{ position: 'relative', zIndex: 1 }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           <h1 style={{
             color: '#FFF8DC',
             fontSize: '2rem',
@@ -283,35 +319,6 @@ const Login = () => {
           }}>
             CYBERGUARD PRO
           </h1>
-          <div style={{
-            color: '#FFF8DC',
-            fontSize: '0.9rem',
-            fontStyle: 'italic',
-            marginBottom: '1rem',
-            opacity: 0.8
-          }}>
-            by Potato Coders
-          </div>
-          <div style={{
-            color: '#FFF8DC',
-            fontSize: '1rem',
-            fontWeight: 'normal'
-          }}>
-            Sign in to your account
-          </div>
-        </div>
-
-        <div className="demo-alert">
-          <div style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
-            Try the demo: <strong>demo@cyberguard.com</strong> / <strong>demo123</strong>
-          </div>
-          <button 
-            className="demo-button" 
-            onClick={handleDemoLogin}
-            disabled={loading}
-          >
-            Quick Tater Demo
-          </button>
         </div>
 
         <div>
@@ -363,7 +370,16 @@ const Login = () => {
             {loading ? 'Smashing…' : 'Smash In'}
           </button>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.25rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.25rem' }}>
+            <button 
+              className="demo-button" 
+              onClick={handleDemoLogin}
+              disabled={loading}
+              aria-label="Demo login"
+              style={{ fontSize: '0.85rem' }}
+            >
+              Demo
+            </button>
             <Link to="/forgot-password" className="link-text">Forgot password?</Link>
           </div>
 
