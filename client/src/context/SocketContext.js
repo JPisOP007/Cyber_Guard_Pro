@@ -15,9 +15,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (user && token) {
       // Initialize socket connection
-      // Prefer explicit env var, fallback to legacy and then localhost
-      const wsUrl = process.env.REACT_APP_WS_URL || process.env.REACT_APP_SERVER_URL || 'http://localhost:5000';
-      const newSocket = io(wsUrl, {
+      const newSocket = io(process.env.REACT_APP_SERVER_URL || 'http://localhost:5000', {
         auth: {
           token: token
         },

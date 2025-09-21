@@ -135,7 +135,7 @@ async function testApiKeys() {
     try {
       const options = {
         hostname: 'haveibeenpwned.com',
-        path: `/api/v3/breaches`,
+        path: '/api/v3/breaches',
         method: 'GET',
         headers: {
           'hibp-api-key': process.env.HIBP_API_KEY,
@@ -144,14 +144,11 @@ async function testApiKeys() {
       };
 
       const response = await httpsRequest(options);
+      
       if (response.status === 200) {
         console.log('✅ HIBP API: WORKING');
-        const count = Array.isArray(response.data) ? response.data.length : 'Unknown';
-        console.log(`   - Recent breaches available: ${count}`);
+        console.log(`   - Recent breaches available: ${Array.isArray(response.data) ? response.data.length : 'Unknown'}`);
         results.hibp = true;
-      } else {
-        console.log(`❌ HIBP API: HTTP ${response.status}`);
-        console.log(`   - Body: ${typeof response.data === 'string' ? response.data : JSON.stringify(response.data)}`);
       }
     } catch (error) {
       console.log('❌ HIBP API: FAILED');

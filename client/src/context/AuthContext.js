@@ -131,12 +131,11 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      
       const response = await api.post('/auth/register', userData);
-      
       if (response.data.success) {
-        dispatch({ type: 'LOGIN_SUCCESS', payload: response.data.data });
-        toast.success('Registration successful!');
+        // Do NOT auto-login after register. Ask user to login explicitly.
+        toast.success('Registration successful! Please log in.');
+        dispatch({ type: 'SET_LOADING', payload: false });
         return { success: true };
       } else {
         toast.error(response.data.message || 'Registration failed');
