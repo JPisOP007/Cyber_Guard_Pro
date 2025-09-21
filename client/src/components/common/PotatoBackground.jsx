@@ -1,214 +1,196 @@
 import React from 'react';
 
-// Original warm potato palette
-const CANVAS = '#F3C98B';
-const SKIN1 = '#C98A3A';
-const SKIN2 = '#B7772C';
-const SKIN3 = '#B7772C'; // match SKIN2 for consistent warm tone
-const HILITE = '#FFE2B0';
-const DIRT = '#B7772C';   // keep within original warm range
-const CHIP1 = '#D9A351';
-const CHIP2 = '#C7903E';
+// Colors from your palette
+const CANVAS = '#F3C987';
+const POTATO_BASE = '#CD8C27';
+const POTATO_SHADOW = '#6B4A10';
 
 const PotatoBackground = ({ style }) => (
   <div aria-hidden="true" role="presentation" style={{ position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none', ...style }}>
     <svg width="100%" height="100%" viewBox="0 0 1440 900" preserveAspectRatio="none">
-      <defs>
-        <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="18" result="b" />
-          <feOffset dx="0" dy="10" in="b" result="o" />
-          <feComponentTransfer>
-            <feFuncA type="linear" slope="0.25" />
-          </feComponentTransfer>
-          <feMerge>
-            <feMergeNode in="o" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        <radialGradient id="skinGrad1" cx="30%" cy="25%" r="80%">
-          <stop offset="0%" stopColor={HILITE} stopOpacity="0.62" />
-          <stop offset="30%" stopColor={SKIN1} />
-          <stop offset="70%" stopColor={SKIN2} />
-          <stop offset="100%" stopColor={SKIN3} />
-        </radialGradient>
-        <radialGradient id="skinGrad2" cx="35%" cy="30%" r="75%">
-          <stop offset="0%" stopColor={HILITE} stopOpacity="0.6" />
-          <stop offset="25%" stopColor={SKIN1} />
-          <stop offset="65%" stopColor={SKIN2} />
-          <stop offset="100%" stopColor={DIRT} />
-        </radialGradient>
-        <linearGradient id="rimShade" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#000" stopOpacity="0" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.08" />
-        </linearGradient>
-        <linearGradient id="chipGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={CHIP1} />
-          <stop offset="100%" stopColor={CHIP2} />
-        </linearGradient>
-        <filter id="chipShadow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="5" />
-        </filter>
-        {/* Eyes/spots for potatoes */}
-        <radialGradient id="eyeGrad" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor={DIRT} stopOpacity="0.6" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.2" />
-        </radialGradient>
-        {/* Texture noise filter */}
-        <filter id="roughTexture">
-          <feTurbulence baseFrequency="0.9" numOctaves="4" result="noise" seed="2"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="3"/>
-        </filter>
-      </defs>
-
       <rect width="1440" height="900" fill={CANVAS} />
 
-      {/* Potatoes: irregular, bumpy shapes */}
-      <g filter="url(#softShadow)">
-        {/* Left potato - very irregular and lumpy */}
-        <g transform="translate(160,230) rotate(-16) scale(0.74,0.60)">
-          <path d="M-150,-90 C-185,-45 -170,-10 -160,20 C-155,45 -140,70 -120,85 C-85,110 -60,125 -30,135 C10,150 45,145 80,130 C110,118 125,95 135,70 C145,40 140,10 130,-20 C115,-55 90,-80 65,-95 C35,-115 0,-125 -30,-130 C-65,-135 -95,-125 -120,-110 C-140,-100 -150,-95 -150,-90 Z" fill="url(#skinGrad1)" />
-          <path d="M-150,-90 C-185,-45 -170,-10 -160,20 C-155,45 -140,70 -120,85 C-85,110 -60,125 -30,135 C10,150 45,145 80,130 C110,118 125,95 135,70 C145,40 140,10 130,-20 C115,-55 90,-80 65,-95 C35,-115 0,-125 -30,-130 C-65,-135 -95,-125 -120,-110 C-140,-100 -150,-95 -150,-90 Z" fill="url(#rimShade)" />
-        </g>
-
-        {/* Center potato - long and knobby */}
-        <g transform="translate(700,470) rotate(-8) scale(0.66,0.52)">
-          <path d="M-220,-100 C-190,-150 -160,-170 -120,-175 C-80,-180 -40,-175 0,-165 C40,-155 75,-140 95,-120 C120,-95 135,-65 145,-30 C155,10 150,45 140,75 C125,110 100,135 70,150 C35,170 -5,175 -45,170 C-85,165 -125,150 -155,125 C-185,100 -210,70 -225,35 C-240,0 -235,-40 -220,-100 Z" fill="url(#skinGrad2)" />
-          <path d="M-220,-100 C-190,-150 -160,-170 -120,-175 C-80,-180 -40,-175 0,-165 C40,-155 75,-140 95,-120 C120,-95 135,-65 145,-30 C155,10 150,45 140,75 C125,110 100,135 70,150 C35,170 -5,175 -45,170 C-85,165 -125,150 -155,125 C-185,100 -210,70 -225,35 C-240,0 -235,-40 -220,-100 Z" fill="url(#rimShade)" />
-        </g>
-
-        {/* Right potato - chunky and angular */}
-        <g transform="translate(1220,210) rotate(18) scale(0.64,0.50)">
-          <path d="M-135,-80 C-165,-60 -175,-30 -170,0 C-165,30 -150,55 -125,75 C-100,95 -70,110 -35,115 C0,120 35,115 65,100 C95,85 115,60 125,30 C135,0 130,-35 115,-65 C100,-95 75,-115 45,-125 C15,-135 -20,-140 -55,-135 C-90,-130 -120,-110 -135,-80 Z" fill="url(#skinGrad1)" />
-          <path d="M-135,-80 C-165,-60 -175,-30 -170,0 C-165,30 -150,55 -125,75 C-100,95 -70,110 -35,115 C0,120 35,115 65,100 C95,85 115,60 125,30 C135,0 130,-35 115,-65 C100,-95 75,-115 45,-125 C15,-135 -20,-140 -55,-135 C-90,-130 -120,-110 -135,-80 Z" fill="url(#rimShade)" />
-        </g>
-
-        {/* Bottom-left potato - wide and bumpy */}
-        <g transform="translate(240,800) rotate(-12) scale(0.58,0.46)">
-          <path d="M-260,-60 C-285,-30 -295,10 -290,50 C-285,85 -270,115 -245,135 C-220,155 -185,170 -145,175 C-105,180 -60,175 -20,165 C25,155 65,140 95,115 C125,90 145,60 155,25 C165,-10 160,-50 145,-85 C130,-120 105,-145 75,-160 C45,-175 10,-180 -25,-175 C-65,-170 -105,-155 -140,-135 C-180,-110 -215,-90 -240,-70 C-255,-65 -260,-62 -260,-60 Z" fill="url(#skinGrad2)" />
-          <path d="M-260,-60 C-285,-30 -295,10 -290,50 C-285,85 -270,115 -245,135 C-220,155 -185,170 -145,175 C-105,180 -60,175 -20,165 C25,155 65,140 95,115 C125,90 145,60 155,25 C165,-10 160,-50 145,-85 C130,-120 105,-145 75,-160 C45,-175 10,-180 -25,-175 C-65,-170 -105,-155 -140,-135 C-180,-110 -215,-90 -240,-70 C-255,-65 -260,-62 -260,-60 Z" fill="url(#rimShade)" />
-        </g>
-
-        {/* Bottom-right potato - oblong with indentations */}
-        <g transform="translate(1160,800) rotate(-6) scale(0.62,0.50)">
-          <path d="M-210,-50 C-230,-25 -240,5 -235,35 C-230,60 -220,80 -200,95 C-180,110 -155,120 -125,125 C-95,130 -60,125 -30,115 C0,105 25,90 45,70 C65,50 75,25 80,0 C85,-25 80,-55 70,-80 C60,-105 45,-125 25,-135 C5,-145 -20,-150 -45,-145 C-75,-140 -105,-125 -130,-105 C-160,-80 -185,-65 -200,-55 C-205,-52 -210,-51 -210,-50 Z" fill="url(#skinGrad1)" />
-          <path d="M-210,-50 C-230,-25 -240,5 -235,35 C-230,60 -220,80 -200,95 C-180,110 -155,120 -125,125 C-95,130 -60,125 -30,115 C0,105 25,90 45,70 C65,50 75,25 80,0 C85,-25 80,-55 70,-80 C60,-105 45,-125 25,-135 C5,-145 -20,-150 -45,-145 C-75,-140 -105,-125 -130,-105 C-160,-80 -185,-65 -200,-55 C-205,-52 -210,-51 -210,-50 Z" fill="url(#rimShade)" />
-        </g>
-
-        {/* Medium potatoes with more realistic shapes */}
-        <g transform="translate(460,150) rotate(22) scale(0.38)">
-          <path d="M-120,-70 C-140,-50 -145,-25 -140,0 C-135,25 -125,45 -105,60 C-85,75 -60,85 -30,90 C0,95 30,90 55,80 C80,70 95,55 105,35 C115,15 110,-10 100,-35 C90,-60 75,-80 55,-95 C35,-110 10,-115 -15,-110 C-45,-105 -75,-95 -100,-80 C-115,-75 -120,-72 -120,-70 Z" fill="url(#skinGrad2)" />
-        </g>
-        
-        <g transform="translate(980,360) rotate(-18) scale(0.36)">
-          <path d="M-110,-60 C-125,-45 -130,-25 -125,-5 C-120,15 -110,30 -95,40 C-80,50 -60,55 -35,60 C-10,65 15,60 35,50 C55,40 65,25 70,5 C75,-15 70,-40 60,-60 C50,-80 35,-95 15,-105 C-5,-115 -30,-120 -55,-115 C-80,-110 -100,-100 -110,-60 Z" fill="url(#skinGrad1)" />
-        </g>
-        
-        <g transform="translate(330,640) rotate(18) scale(0.32)">
-          <path d="M-100,-55 C-115,-40 -120,-20 -115,0 C-110,20 -100,35 -85,45 C-70,55 -50,60 -25,65 C0,70 25,65 45,55 C65,45 75,30 80,10 C85,-10 80,-35 70,-55 C60,-75 45,-90 25,-100 C5,-110 -20,-115 -45,-110 C-70,-105 -90,-95 -100,-55 Z" fill="url(#skinGrad1)" />
-        </g>
-        
-        <g transform="translate(1100,140) rotate(-20) scale(0.34)">
-          <path d="M-120,-70 C-135,-50 -140,-25 -135,0 C-130,25 -120,45 -100,60 C-80,75 -55,85 -25,90 C5,95 35,90 60,80 C85,70 100,55 110,35 C120,15 115,-10 105,-35 C95,-60 80,-80 60,-95 C40,-110 15,-115 -10,-110 C-40,-105 -70,-95 -95,-80 C-110,-75 -120,-72 -120,-70 Z" fill="url(#skinGrad2)" />
-        </g>
-        
-        {/* Small potatoes */}
-        <g transform="translate(860,520) rotate(10) scale(0.24)">
-          <path d="M-95,-50 C-105,-35 -110,-15 -105,5 C-100,25 -90,40 -75,50 C-60,60 -40,65 -15,70 C10,75 35,70 55,60 C75,50 85,35 90,15 C95,-5 90,-30 80,-50 C70,-70 55,-85 35,-95 C15,-105 -10,-110 -35,-105 C-60,-100 -80,-90 -95,-50 Z" fill="url(#skinGrad2)" />
-        </g>
-        
-        <g transform="translate(200,420) rotate(-8) scale(0.22)">
-          <path d="M-90,-48 C-100,-33 -105,-13 -100,7 C-95,27 -85,42 -70,52 C-55,62 -35,67 -10,72 C15,77 40,72 60,62 C80,52 90,37 95,17 C100,-3 95,-28 85,-48 C75,-68 60,-83 40,-93 C20,-103 -5,-108 -30,-103 C-55,-98 -75,-88 -90,-48 Z" fill="url(#skinGrad1)" />
-        </g>
-        {/* Light extra scatter - keep sparse */}
-        <g transform="translate(1280,560) rotate(14) scale(0.18)">
-          <path d="M-80,-45 C-95,-30 -98,-12 -94,6 C-90,22 -82,35 -70,44 C-58,53 -42,58 -22,62 C-2,66 16,62 30,54 C44,46 53,34 58,18 C62,2 59,-16 51,-32 C43,-48 31,-60 16,-67 C0,-74 -18,-77 -36,-73 C-56,-69 -72,-60 -80,-45 Z" fill="url(#skinGrad2)" />
-        </g>
-        <g transform="translate(100,120) rotate(-10) scale(0.16)">
-          <path d="M-70,-40 C-82,-28 -86,-12 -82,4 C-78,18 -70,30 -59,38 C-48,46 -34,50 -16,54 C2,58 18,54 31,47 C44,40 52,30 56,16 C60,2 57,-14 49,-28 C41,-42 30,-52 16,-58 C2,-64 -14,-66 -30,-62 C-48,-58 -62,-50 -70,-40 Z" fill="url(#skinGrad1)" />
-        </g>
-        <g transform="translate(1320,120) rotate(6) scale(0.14)">
-          <path d="M-60,-35 C-70,-25 -74,-12 -71,3 C-68,16 -61,26 -51,34 C-41,42 -28,46 -12,49 C4,52 18,49 30,42 C42,35 50,26 54,14 C58,2 55,-11 47,-23 C39,-35 29,-44 16,-49 C3,-54 -11,-56 -25,-53 C-41,-50 -54,-43 -60,-35 Z" fill="url(#skinGrad2)" />
-        </g>
-        <g transform="translate(260,900) rotate(-12) scale(0.15)">
-          <path d="M-65,-38 C-75,-28 -78,-14 -74,0 C-70,12 -63,22 -53,29 C-43,36 -30,40 -15,43 C0,46 14,43 25,36 C36,29 44,21 48,9 C52,-3 49,-15 42,-27 C35,-39 25,-47 13,-52 C1,-57 -12,-58 -26,-55 C-40,-52 -52,-45 -65,-38 Z" fill="url(#skinGrad1)" />
-        </g>
-        {/* A few more tiny potatoes for variety */}
-        <g transform="translate(1240,740) rotate(8) scale(0.13)">
-          <path d="M-55,-32 C-64,-24 -67,-12 -64,2 C-61,14 -54,24 -45,30 C-36,36 -25,39 -12,41 C1,43 13,41 24,35 C35,29 43,21 46,10 C49,-1 46,-12 39,-23 C32,-34 23,-42 12,-46 C1,-50 -10,-52 -23,-49 C-36,-46 -47,-40 -55,-32 Z" fill="url(#skinGrad2)" />
-        </g>
-        <g transform="translate(180,700) rotate(-6) scale(0.12)">
-          <path d="M-50,-30 C-58,-22 -61,-11 -58,1 C-55,12 -49,21 -40,27 C-31,33 -21,36 -10,38 C1,40 12,38 22,33 C32,28 39,21 42,10 C45,0 43,-10 36,-20 C29,-30 21,-37 10,-41 C0,-45 -11,-46 -22,-44 C-34,-42 -44,-36 -50,-30 Z" fill="url(#skinGrad1)" />
-        </g>
-        <g transform="translate(1080,100) rotate(4) scale(0.12)">
-          <path d="M-48,-28 C-56,-21 -59,-10 -56,1 C-53,11 -47,19 -39,24 C-31,29 -21,32 -10,34 C1,36 11,34 20,29 C29,24 36,18 39,8 C42,-2 40,-12 34,-21 C28,-30 20,-36 10,-40 C0,-43 -10,-44 -21,-42 C-32,-40 -41,-34 -48,-28 Z" fill="url(#skinGrad2)" />
-        </g>
-      </g>
-
-      {/* Potato eyes/spots - the characteristic dark spots on potatoes */}
-      <g opacity="0.6">
-        <ellipse cx="150" cy="210" rx="8" ry="6" fill="url(#eyeGrad)" />
-        <ellipse cx="180" cy="250" rx="6" ry="4" fill="url(#eyeGrad)" />
-        <ellipse cx="190" cy="270" rx="5" ry="3" fill="url(#eyeGrad)" />
-        
-        <ellipse cx="710" cy="450" rx="9" ry="7" fill="url(#eyeGrad)" />
-        <ellipse cx="740" cy="480" rx="7" ry="5" fill="url(#eyeGrad)" />
-        <ellipse cx="680" cy="510" rx="6" ry="4" fill="url(#eyeGrad)" />
-        
-        <ellipse cx="1200" cy="200" rx="7" ry="5" fill="url(#eyeGrad)" />
-        <ellipse cx="1230" cy="230" rx="6" ry="4" fill="url(#eyeGrad)" />
-        
-        <ellipse cx="250" cy="780" rx="8" ry="6" fill="url(#eyeGrad)" />
-        <ellipse cx="280" cy="810" rx="6" ry="4" fill="url(#eyeGrad)" />
-        
-        <ellipse cx="1140" cy="780" rx="7" ry="5" fill="url(#eyeGrad)" />
-        <ellipse cx="1180" cy="810" rx="5" ry="3" fill="url(#eyeGrad)" />
-        
-        {/* Eyes on smaller potatoes */}
-        <ellipse cx="450" cy="140" rx="4" ry="3" fill="url(#eyeGrad)" />
-        <ellipse cx="470" cy="160" rx="3" ry="2" fill="url(#eyeGrad)" />
-        
-        <ellipse cx="970" cy="350" rx="4" ry="3" fill="url(#eyeGrad)" />
-        <ellipse cx="990" cy="370" rx="3" ry="2" fill="url(#eyeGrad)" />
-        
-        <ellipse cx="320" cy="630" rx="3" ry="2" fill="url(#eyeGrad)" />
-        <ellipse cx="1090" cy="130" rx="4" ry="3" fill="url(#eyeGrad)" />
-      </g>
-
-      {/* Chips - keep these as they were working well */}
+      {/* Large varied potato shapes */}
+      
+      {/* Left large lumpy potato */}
       <g>
-        <g fill="#000" opacity="0.18" filter="url(#chipShadow)">
-          <ellipse cx="250" cy="120" rx="22" ry="15" />
-          <ellipse cx="330" cy="210" rx="14" ry="10" />
-          <ellipse cx="520" cy="160" rx="16" ry="12" />
-          <ellipse cx="640" cy="110" rx="12" ry="9" />
-          <ellipse cx="880" cy="150" rx="18" ry="13" />
-          <ellipse cx="980" cy="260" rx="12" ry="9" />
-          <ellipse cx="1240" cy="320" rx="18" ry="13" />
-          <ellipse cx="180" cy="420" rx="16" ry="12" />
-          <ellipse cx="320" cy="520" rx="14" ry="10" />
-          <ellipse cx="520" cy="690" rx="18" ry="12" />
-          <ellipse cx="760" cy="730" rx="16" ry="12" />
-          <ellipse cx="980" cy="660" rx="14" ry="10" />
-          <ellipse cx="1160" cy="540" rx="16" ry="11" />
-          <ellipse cx="1040" cy="420" rx="14" ry="10" />
-        </g>
-        <g fill="url(#chipGrad)">
-          <ellipse cx="242" cy="110" rx="22" ry="15" />
-          <ellipse cx="322" cy="200" rx="14" ry="10" />
-          <ellipse cx="512" cy="150" rx="16" ry="12" />
-          <ellipse cx="632" cy="100" rx="12" ry="9" />
-          <ellipse cx="872" cy="140" rx="18" ry="13" />
-          <ellipse cx="972" cy="250" rx="12" ry="9" />
-          <ellipse cx="1232" cy="310" rx="18" ry="13" />
-          <ellipse cx="172" cy="410" rx="16" ry="12" />
-          <ellipse cx="312" cy="510" rx="14" ry="10" />
-          <ellipse cx="512" cy="680" rx="18" ry="12" />
-          <ellipse cx="752" cy="720" rx="16" ry="12" />
-          <ellipse cx="972" cy="650" rx="14" ry="10" />
-          <ellipse cx="1152" cy="530" rx="16" ry="11" />
-          <ellipse cx="1032" cy="410" rx="14" ry="10" />
-        </g>
+        <path d="M60,150 C40,120 50,80 90,60 C140,40 190,50 230,80 C260,110 270,150 250,190 C230,230 190,250 150,240 C110,230 80,200 70,170 C60,160 60,150 60,150 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M52,142 C32,112 42,72 82,52 C132,32 182,42 222,72 C252,102 262,142 242,182 C222,222 182,242 142,232 C102,222 72,192 62,162 C52,152 52,142 52,142 Z" 
+              fill={POTATO_BASE} />
       </g>
+
+      {/* Center large round potato */}
+      <g>
+        <path d="M580,360 C550,330 560,280 600,260 C650,240 700,250 740,280 C780,310 790,360 770,400 C750,440 700,460 650,450 C600,440 570,400 580,380 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M572,352 C542,322 552,272 592,252 C642,232 692,242 732,272 C772,302 782,352 762,392 C742,432 692,452 642,442 C592,432 562,392 572,372 Z" 
+              fill={POTATO_BASE} />
+      </g>
+
+      {/* Right elongated potato */}
+      <g>
+        <path d="M1150,200 C1120,180 1130,140 1170,120 C1220,100 1280,110 1320,140 C1360,170 1380,220 1360,260 C1340,300 1300,320 1250,310 C1200,300 1170,260 1160,230 C1150,210 1150,200 1150,200 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M1142,192 C1112,172 1122,132 1162,112 C1212,92 1272,102 1312,132 C1352,162 1372,212 1352,252 C1332,292 1292,312 1242,302 C1192,292 1162,252 1152,222 C1142,202 1142,192 1142,192 Z" 
+              fill={POTATO_BASE} />
+      </g>
+
+      {/* Bottom left kidney-shaped potato */}
+      <g>
+        <path d="M120,680 C90,650 100,600 140,580 C180,560 220,570 250,600 C280,630 290,680 270,720 C250,760 210,780 170,770 C130,760 110,730 105,700 C100,690 120,680 120,680 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M112,672 C82,642 92,592 132,572 C172,552 212,562 242,592 C272,622 282,672 262,712 C242,752 202,772 162,762 C122,752 102,722 97,692 C92,682 112,672 112,672 Z" 
+              fill={POTATO_BASE} />
+      </g>
+
+      {/* Bottom right irregular potato */}
+      <g>
+        <path d="M1200,620 C1170,590 1180,540 1220,520 C1270,500 1320,510 1360,540 C1400,570 1410,620 1390,660 C1370,700 1330,720 1280,710 C1230,700 1210,670 1200,640 C1195,630 1200,620 1200,620 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M1192,612 C1162,582 1172,532 1212,512 C1262,492 1312,502 1352,532 C1392,562 1402,612 1382,652 C1362,692 1322,712 1272,702 C1222,692 1202,662 1192,632 C1187,622 1192,612 1192,612 Z" 
+              fill={POTATO_BASE} />
+      </g>
+
+      {/* Top right edge potato */}
+      <g>
+        <path d="M1350,40 C1330,10 1350,-20 1380,-30 C1420,-40 1440,-20 1440,20 L1440,80 C1440,120 1420,140 1390,130 C1360,120 1350,80 1350,60 C1350,50 1350,40 1350,40 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M1342,32 C1322,2 1342,-28 1372,-38 C1412,-48 1440,-28 1440,12 L1440,72 C1440,112 1412,132 1382,122 C1352,112 1342,72 1342,52 C1342,42 1342,32 1342,32 Z" 
+              fill={POTATO_BASE} />
+      </g>
+
+      {/* Medium varied potatoes */}
+      <g>
+        <path d="M450,180 C430,160 435,130 465,115 C500,100 535,105 565,125 C595,145 605,175 590,205 C575,235 545,250 510,245 C475,240 450,210 450,190 C450,185 450,180 450,180 Z" 
+              fill={POTATO_SHADOW} />
+        <path d="M443,173 C423,153 428,123 458,108 C493,93 528,98 558,118 C588,138 598,168 583,198 C568,228 538,243 503,238 C468,233 443,203 443,183 C443,178 443,173 443,173 Z" 
+              fill={POTATO_BASE} />
+      </g>
+
+      <g>
+        <ellipse cx="900" cy="130" rx="55" ry="35" fill={POTATO_SHADOW} transform="rotate(-15 900 130)" />
+        <ellipse cx="893" cy="123" rx="55" ry="35" fill={POTATO_BASE} transform="rotate(-15 893 123)" />
+      </g>
+
+      <g>
+        <ellipse cx="350" cy="430" rx="45" ry="65" fill={POTATO_SHADOW} transform="rotate(20 350 430)" />
+        <ellipse cx="343" cy="423" rx="45" ry="65" fill={POTATO_BASE} transform="rotate(20 343 423)" />
+      </g>
+
+      <g>
+        <ellipse cx="1080" cy="400" rx="70" ry="40" fill={POTATO_SHADOW} transform="rotate(-25 1080 400)" />
+        <ellipse cx="1073" cy="393" rx="70" ry="40" fill={POTATO_BASE} transform="rotate(-25 1073 393)" />
+      </g>
+
+      <g>
+        <ellipse cx="780" cy="750" rx="50" ry="30" fill={POTATO_SHADOW} transform="rotate(10 780 750)" />
+        <ellipse cx="773" cy="743" rx="50" ry="30" fill={POTATO_BASE} transform="rotate(10 773 743)" />
+      </g>
+
+      {/* Small potatoes - various orientations */}
+      <g>
+        <ellipse cx="650" cy="100" rx="25" ry="18" fill={POTATO_SHADOW} transform="rotate(-30 650 100)" />
+        <ellipse cx="645" cy="95" rx="25" ry="18" fill={POTATO_BASE} transform="rotate(-30 645 95)" />
+      </g>
+
+      <g>
+        <ellipse cx="280" cy="280" rx="22" ry="15" fill={POTATO_SHADOW} transform="rotate(45 280 280)" />
+        <ellipse cx="275" cy="275" rx="22" ry="15" fill={POTATO_BASE} transform="rotate(45 275 275)" />
+      </g>
+
+      <g>
+        <ellipse cx="820" cy="320" rx="28" ry="20" fill={POTATO_SHADOW} transform="rotate(-10 820 320)" />
+        <ellipse cx="815" cy="315" rx="28" ry="20" fill={POTATO_BASE} transform="rotate(-10 815 315)" />
+      </g>
+
+      <g>
+        <ellipse cx="1300" cy="350" rx="20" ry="30" fill={POTATO_SHADOW} transform="rotate(60 1300 350)" />
+        <ellipse cx="1295" cy="345" rx="20" ry="30" fill={POTATO_BASE} transform="rotate(60 1295 345)" />
+      </g>
+
+      <g>
+        <ellipse cx="480" cy="620" rx="32" ry="22" fill={POTATO_SHADOW} transform="rotate(-20 480 620)" />
+        <ellipse cx="475" cy="615" rx="32" ry="22" fill={POTATO_BASE} transform="rotate(-20 475 615)" />
+      </g>
+
+      <g>
+        <ellipse cx="1180" cy="680" rx="26" ry="18" fill={POTATO_SHADOW} transform="rotate(35 1180 680)" />
+        <ellipse cx="1175" cy="675" rx="26" ry="18" fill={POTATO_BASE} transform="rotate(35 1175 675)" />
+      </g>
+
+      {/* Extra small potatoes */}
+      <g>
+        <ellipse cx="180" cy="160" rx="16" ry="12" fill={POTATO_SHADOW} transform="rotate(-45 180 160)" />
+        <ellipse cx="177" cy="157" rx="16" ry="12" fill={POTATO_BASE} transform="rotate(-45 177 157)" />
+      </g>
+
+      <g>
+        <ellipse cx="40" cy="250" rx="14" ry="10" fill={POTATO_SHADOW} transform="rotate(25 40 250)" />
+        <ellipse cx="37" cy="247" rx="14" ry="10" fill={POTATO_BASE} transform="rotate(25 37 247)" />
+      </g>
+
+      <g>
+        <ellipse cx="580" cy="260" rx="18" ry="13" fill={POTATO_SHADOW} transform="rotate(-60 580 260)" />
+        <ellipse cx="577" cy="257" rx="18" ry="13" fill={POTATO_BASE} transform="rotate(-60 577 257)" />
+      </g>
+
+      <g>
+        <ellipse cx="950" cy="300" rx="15" ry="11" fill={POTATO_SHADOW} transform="rotate(15 950 300)" />
+        <ellipse cx="947" cy="297" rx="15" ry="11" fill={POTATO_BASE} transform="rotate(15 947 297)" />
+      </g>
+
+      <g>
+        <ellipse cx="1350" cy="220" rx="20" ry="14" fill={POTATO_SHADOW} transform="rotate(-35 1350 220)" />
+        <ellipse cx="1347" cy="217" rx="20" ry="14" fill={POTATO_BASE} transform="rotate(-35 1347 217)" />
+      </g>
+
+      <g>
+        <ellipse cx="150" cy="540" rx="12" ry="8" fill={POTATO_SHADOW} transform="rotate(50 150 540)" />
+        <ellipse cx="147" cy="537" rx="12" ry="8" fill={POTATO_BASE} transform="rotate(50 147 537)" />
+      </g>
+
+      <g>
+        <ellipse cx="420" cy="480" rx="16" ry="12" fill={POTATO_SHADOW} transform="rotate(-15 420 480)" />
+        <ellipse cx="417" cy="477" rx="16" ry="12" fill={POTATO_BASE} transform="rotate(-15 417 477)" />
+      </g>
+
+      <g>
+        <ellipse cx="680" cy="580" rx="14" ry="10" fill={POTATO_SHADOW} transform="rotate(40 680 580)" />
+        <ellipse cx="677" cy="577" rx="14" ry="10" fill={POTATO_BASE} transform="rotate(40 677 577)" />
+      </g>
+
+      <g>
+        <ellipse cx="960" cy="620" rx="17" ry="12" fill={POTATO_SHADOW} transform="rotate(-25 960 620)" />
+        <ellipse cx="957" cy="617" rx="17" ry="12" fill={POTATO_BASE} transform="rotate(-25 957 617)" />
+      </g>
+
+      <g>
+        <ellipse cx="1120" cy="150" rx="13" ry="9" fill={POTATO_SHADOW} transform="rotate(30 1120 150)" />
+        <ellipse cx="1117" cy="147" rx="13" ry="9" fill={POTATO_BASE} transform="rotate(30 1117 147)" />
+      </g>
+
+      {/* Tiny scattered potatoes */}
+      <g>
+        <ellipse cx="250" cy="370" rx="10" ry="7" fill={POTATO_SHADOW} transform="rotate(-20 250 370)" />
+        <ellipse cx="248" cy="368" rx="10" ry="7" fill={POTATO_BASE} transform="rotate(-20 248 368)" />
+      </g>
+
+      <g>
+        <ellipse cx="1380" cy="460" rx="11" ry="8" fill={POTATO_SHADOW} transform="rotate(55 1380 460)" />
+        <ellipse cx="1378" cy="458" rx="11" ry="8" fill={POTATO_BASE} transform="rotate(55 1378 458)" />
+      </g>
+
+      <g>
+        <ellipse cx="380" cy="720" rx="9" ry="6" fill={POTATO_SHADOW} transform="rotate(-40 380 720)" />
+        <ellipse cx="378" cy="718" rx="9" ry="6" fill={POTATO_BASE} transform="rotate(-40 378 718)" />
+      </g>
+
+      <g>
+        <ellipse cx="1280" cy="580" rx="12" ry="8" fill={POTATO_SHADOW} transform="rotate(20 1280 580)" />
+        <ellipse cx="1278" cy="578" rx="12" ry="8" fill={POTATO_BASE} transform="rotate(20 1278 578)" />
+      </g>
+
     </svg>
   </div>
 );
