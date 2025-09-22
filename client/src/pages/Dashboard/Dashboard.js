@@ -279,7 +279,7 @@ const Dashboard = () => {
   return (
     <Box>
       {/* Header */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           Security Dashboard
         </Typography>
@@ -302,6 +302,9 @@ const Dashboard = () => {
           </IconButton>
         </Box>
       </Box>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 3 }}>
+        Spud central: mash your insights, roast the risks, and keep the tubers secure.
+      </Typography>
 
       {/* Stats Cards */}
       <Grid container spacing={3} sx={{ mb: 3 }}>

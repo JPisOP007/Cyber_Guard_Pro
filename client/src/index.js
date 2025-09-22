@@ -23,36 +23,46 @@ const queryClient = new QueryClient({
   },
 });
 
-// Create theme
+// Create theme (Potato palette)
 const theme = createTheme({
   palette: {
     mode: 'light',
+    // Russet potato browns and golds
     primary: {
-      main: '#1976d2',
-      light: '#42a5f5',
-      dark: '#1565c0',
+      main: '#8B5E3C', // russet skin
+      light: '#A97B59',
+      dark: '#5E3C22',
+      contrastText: '#fff8e6',
     },
     secondary: {
-      main: '#dc004e',
-      light: '#ff5983',
-      dark: '#9a0036',
+      main: '#C49A6C', // roasted gold
+      light: '#D8B58E',
+      dark: '#9E7A52',
     },
     error: {
-      main: '#f44336',
+      main: '#8B0000', // rotten red-brown
     },
     warning: {
-      main: '#ff9800',
+      main: '#D2691E', // baked sweet potato
     },
     info: {
-      main: '#2196f3',
+      main: '#B8860B', // golden glaze
     },
     success: {
-      main: '#4caf50',
+      main: '#6B8E23', // fresh leaf/eye
+    },
+    grey: {
+      100: '#FFF8E6', // mashed backdrop
+      200: '#F3E3C3',
+      300: '#E6D0A8',
+      400: '#D4B88B',
+      500: '#C49A6C',
     },
     background: {
-      default: '#fafafa',
-      paper: '#ffffff',
+      default: '#FFF8E6', // buttery mash
+      paper: '#FFFDF6',
     },
+    divider: '#E6D0A8',
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
@@ -87,6 +97,11 @@ const theme = createTheme({
         root: {
           textTransform: 'none',
           borderRadius: 8,
+          boxShadow: 'none',
+        },
+        containedPrimary: {
+          backgroundColor: '#8B5E3C',
+          '&:hover': { backgroundColor: '#724c31' },
         },
       },
     },
@@ -94,7 +109,8 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          boxShadow: '0 2px 8px rgba(91, 56, 28, 0.15)',
+          background: 'linear-gradient(180deg, rgba(255,253,246,0.96) 0%, rgba(255,248,230,0.96) 100%)',
         },
       },
     },
@@ -102,6 +118,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
+          background: 'linear-gradient(180deg, rgba(255,253,246,0.98) 0%, rgba(255,248,230,0.98) 100%)',
         },
       },
     },

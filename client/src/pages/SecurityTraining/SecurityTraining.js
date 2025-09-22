@@ -1,286 +1,188 @@
-import React, { useState, useEffect } from 'react';
+// Clean single-implementation file. If you see duplicate imports/exports below, remove them.
+import React, { useEffect, useState } from 'react';
 import {
-  Box, Typography, Card, CardContent, Grid, Button, Chip, LinearProgress,
-  Avatar, Dialog, DialogTitle, DialogContent, DialogActions, TextField,
-  FormControl, Select, MenuItem, InputLabel, Stepper, Step, StepLabel,
-  StepContent, RadioGroup, FormControlLabel, Radio, Alert, Tabs, Tab,
-  List, ListItem, ListItemIcon, ListItemText, ListItemSecondaryAction,
-  IconButton, Tooltip, CircularProgress, Divider, Paper
+  Alert,
+  Avatar,
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  LinearProgress,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormControlLabel,
+  Step,
+  StepContent,
+  StepLabel,
+  Stepper,
+  Tab,
+  Tabs,
+  Typography,
 } from '@mui/material';
 import {
-  School as SchoolIcon, Security as SecurityIcon, Quiz as QuizIcon,
-  EmojiEvents as TrophyIcon, PlayArrow as PlayIcon, CheckCircle as CheckIcon,
-  Schedule as ClockIcon, Star as StarIcon, TrendingUp as TrendingUpIcon,
-  Shield as ShieldIcon, Computer as ComputerIcon, Psychology as BrainIcon,
-  Phishing as PhishingIcon, Lock as LockIcon, People as PeopleIcon,
-  Assessment as AssessmentIcon, VerifiedUser as CertificateIcon
+  Assessment as AssessmentIcon,
+  CheckCircle as CheckIcon,
+  Schedule as ClockIcon,
+  Computer as ComputerIcon,
+  EmojiEvents as TrophyIcon,
+  Lock as LockIcon,
+  People as PeopleIcon,
+  Phishing as PhishingIcon,
+  PlayArrow as PlayIcon,
+  School as SchoolIcon,
+  Security as SecurityIcon,
+  Shield as ShieldIcon,
+  Star as StarIcon,
+  Verified as VerifiedIcon,
 } from '@mui/icons-material';
 import { educationAPI } from '../../services/api';
 
 const SecurityTraining = () => {
   const [modules, setModules] = useState([]);
   const [progress, setProgress] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [selectedModule, setSelectedModule] = useState(null);
   const [activeLesson, setActiveLesson] = useState(0);
   const [lessonAnswers, setLessonAnswers] = useState({});
-  const [loading, setLoading] = useState(true);
   const [tabValue, setTabValue] = useState(0);
   const [phishingSimulation, setPhishingSimulation] = useState(null);
   const [simulationLoading, setSimulationLoading] = useState(false);
+  const [simulationResult, setSimulationResult] = useState({ success: null, detectedFlags: [] });
+  const [achievements, setAchievements] = useState([]);
+  const [certificates, setCertificates] = useState([]);
+  const [achievementsLoading, setAchievementsLoading] = useState(false);
+  const [certsLoading, setCertsLoading] = useState(false);
 
+  useEffect(() => { loadEducationData(); }, []);
   useEffect(() => {
-    loadEducationData();
-  }, []);
+    if (tabValue === 2) {
+      (async () => {
+        setAchievementsLoading(true);
+        try { const res = await educationAPI.getAchievements(); setAchievements(res.data?.data || []); } catch (e) { console.error(e); } finally { setAchievementsLoading(false); }
+      })();
+    } else if (tabValue === 3) {
+      (async () => {
+        setCertsLoading(true);
+        try { const res = await educationAPI.getCertificates(); setCertificates(res.data?.data || []); } catch (e) { console.error(e); } finally { setCertsLoading(false); }
+      })();
+    }
+  }, [tabValue]);
 
   const loadEducationData = async () => {
     try {
-      const [modulesRes, progressRes] = await Promise.all([
-        educationAPI.getModules(),
-        educationAPI.getProgress()
-      ]);
-      
-      setModules(modulesRes.data.data);
-      setProgress(progressRes.data.data);
-    } catch (error) {
-      console.error('Failed to load education data:', error);
-    } finally {
-      setLoading(false);
-    }
+      const [modulesRes, progressRes] = await Promise.all([educationAPI.getModules(), educationAPI.getProgress()]);
+      setModules(modulesRes.data?.data || []);
+      setProgress(progressRes.data?.data || null);
+    } catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
-  const getDifficultyColor = (difficulty) => {
-    switch (difficulty) {
-      case 'beginner': return 'success';
-      case 'intermediate': return 'warning';
-      case 'advanced': return 'error';
-      default: return 'default';
-    }
-  };
-
-  const getDifficultyIcon = (difficulty) => {
-    switch (difficulty) {
-      case 'beginner': return <ShieldIcon />;
-      case 'intermediate': return <ComputerIcon />;
-      case 'advanced': return <BrainIcon />;
-      default: return <SecurityIcon />;
-    }
-  };
-
-  const getModuleIcon = (moduleId) => {
-    switch (moduleId) {
-      case 'phishing-basics': return <PhishingIcon />;
-      case 'password-security': return <LockIcon />;
-      case 'social-engineering': return <PeopleIcon />;
-      case 'network-security': return <ComputerIcon />;
-      case 'incident-response': return <AssessmentIcon />;
-      default: return <SecurityIcon />;
-    }
-  };
+  const getDifficultyColor = (d) => (d === 'beginner' ? 'success' : d === 'intermediate' ? 'warning' : d === 'advanced' ? 'error' : 'default');
+  const getDifficultyIcon = (d) => (d === 'beginner' ? <ShieldIcon /> : <SecurityIcon />);
+  const getModuleIcon = (id) => id === 'phishing-basics' ? <PhishingIcon /> : id === 'password-security' ? <LockIcon /> : id === 'social-engineering' ? <PeopleIcon /> : id === 'network-security' ? <ComputerIcon /> : id === 'incident-response' ? <AssessmentIcon /> : <SecurityIcon />;
 
   const startModule = async (module) => {
-    try {
-      const response = await educationAPI.getModule(module.id);
-      setSelectedModule(response.data.data);
-      setActiveLesson(0);
-      setLessonAnswers({});
-    } catch (error) {
-      console.error('Failed to start module:', error);
-    }
+    try { const res = await educationAPI.getModule(module.id); setSelectedModule(res.data?.data || null); setActiveLesson(0); setLessonAnswers({}); }
+    catch (e) { console.error(e); }
   };
-
   const completeLesson = async (lessonId) => {
     if (!selectedModule) return;
-
     try {
-      const response = await educationAPI.completeLesson(
-        selectedModule.id,
-        lessonId,
-        lessonAnswers[lessonId]
-      );
-      
-      if (response.data.success) {
-        // Update progress
-        await loadEducationData();
-        
-        // Move to next lesson or complete module
-        if (activeLesson < selectedModule.lessons.length - 1) {
-          setActiveLesson(activeLesson + 1);
-        } else {
-          // Module completed
-          setSelectedModule(null);
-        }
-      }
-    } catch (error) {
-      console.error('Failed to complete lesson:', error);
-    }
+      const res = await educationAPI.completeLesson(selectedModule.id, lessonId, lessonAnswers[lessonId]);
+      if (res.data?.success) { await loadEducationData(); if (activeLesson < (selectedModule.lessons?.length || 0) - 1) setActiveLesson((v) => v + 1); else setSelectedModule(null); }
+    } catch (e) { console.error(e); }
   };
-
-  const handleAnswerChange = (lessonId, questionId, answer) => {
-    setLessonAnswers(prev => ({
-      ...prev,
-      [lessonId]: {
-        ...prev[lessonId],
-        [questionId]: answer
-      }
-    }));
-  };
+  const handleAnswerChange = (lessonId, questionId, answer) => setLessonAnswers((prev) => ({ ...prev, [lessonId]: { ...(prev[lessonId] || {}), [questionId]: answer } }));
 
   const startPhishingSimulation = async (difficulty = 'beginner') => {
     setSimulationLoading(true);
-    try {
-      const response = await educationAPI.startPhishingSimulation(difficulty);
-      setPhishingSimulation(response.data.data);
-    } catch (error) {
-      console.error('Failed to start phishing simulation:', error);
-    } finally {
-      setSimulationLoading(false);
-    }
+    try { const res = await educationAPI.startPhishingSimulation(difficulty); const { simulation, sessionData } = res.data?.data || {}; if (simulation) { setPhishingSimulation({ ...simulation, session: sessionData }); setSimulationResult({ success: null, detectedFlags: [] }); } }
+    catch (e) { console.error(e); }
+    finally { setSimulationLoading(false); }
+  };
+  const submitSimulation = async () => {
+    if (!phishingSimulation?.id) return;
+    try { await educationAPI.submitSimulationResult(phishingSimulation.id, simulationResult); alert('Simulation result submitted!'); loadEducationData(); }
+    catch (e) { console.error(e); alert('Failed to submit simulation result'); }
   };
 
   const renderModuleCard = (module) => (
     <Card key={module.id} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ flexGrow: 1 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>
-            {getModuleIcon(module.id)}
-          </Avatar>
+          <Avatar sx={{ mr: 2, bgcolor: 'primary.main' }}>{getModuleIcon(module.id)}</Avatar>
           <Box sx={{ flexGrow: 1 }}>
-            <Typography variant="h6" gutterBottom>
-              {module.title}
-            </Typography>
+            <Typography variant="h6" gutterBottom>{module.title}</Typography>
             <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
-              <Chip
-                size="small"
-                label={module.difficulty}
-                color={getDifficultyColor(module.difficulty)}
-                icon={getDifficultyIcon(module.difficulty)}
-              />
-              <Chip
-                size="small"
-                label={module.estimatedTime}
-                icon={<ClockIcon />}
-                variant="outlined"
-              />
+              <Chip size="small" label={module.difficulty} color={getDifficultyColor(module.difficulty)} icon={getDifficultyIcon(module.difficulty)} />
+              <Chip size="small" label={module.estimatedTime} icon={<ClockIcon />} variant="outlined" />
             </Box>
           </Box>
         </Box>
-        
-        <Typography variant="body2" color="textSecondary" paragraph>
-          {module.description}
-        </Typography>
-
-        {module.progress && (
-          <Box sx={{ mb: 2 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-              <Typography variant="body2">Progress</Typography>
-              <Typography variant="body2">
-                {module.progress.completedLessons?.length || 0}/{module.lessons?.length || 0}
-              </Typography>
-            </Box>
-            <LinearProgress
-              variant="determinate"
-              value={module.lessons?.length ? (module.progress.completedLessons?.length || 0) / module.lessons.length * 100 : 0}
-              sx={{ mb: 1 }}
-            />
-            {module.progress.score > 0 && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <StarIcon color="warning" fontSize="small" />
-                <Typography variant="body2">{module.progress.score}% Score</Typography>
-              </Box>
-            )}
-          </Box>
-        )}
+        <Typography variant="body2" color="text.secondary" paragraph>{module.description}</Typography>
+        <List dense>
+          {(module.topics || []).map((t, i) => (
+            <ListItem key={i} disableGutters>
+              <ListItemIcon><CheckIcon color="success" /></ListItemIcon>
+              <ListItemText primary={t} />
+            </ListItem>
+          ))}
+        </List>
       </CardContent>
-      
-      <Box sx={{ p: 2, pt: 0 }}>
-        <Button
-          fullWidth
-          variant={module.progress?.isCompleted ? 'outlined' : 'contained'}
-          onClick={() => startModule(module)}
-          startIcon={module.progress?.isCompleted ? <CheckIcon /> : <PlayIcon />}
-        >
-          {module.progress?.isCompleted ? 'Review' : module.progress?.completedLessons?.length > 0 ? 'Continue' : 'Start'}
-        </Button>
+      <Box sx={{ p: 2, pt: 0, display: 'flex', gap: 1 }}>
+        <Button variant="contained" onClick={() => startModule(module)} startIcon={<PlayIcon />}>Start</Button>
       </Box>
     </Card>
   );
 
-  const renderLessonContent = (lesson) => (
-    <Paper sx={{ p: 3, mb: 2 }}>
-      <Typography variant="h6" gutterBottom>{lesson.title}</Typography>
-      <Typography variant="body1" paragraph>
-        {lesson.content || 'Interactive lesson content will be displayed here.'}
-      </Typography>
-      
-      {lesson.questions && lesson.questions.length > 0 && (
-        <Box sx={{ mt: 3 }}>
-          <Typography variant="h6" gutterBottom>Knowledge Check</Typography>
-          {lesson.questions.map((question, qIndex) => (
-            <Box key={question.id} sx={{ mb: 3 }}>
-              <Typography variant="body1" gutterBottom>
-                {qIndex + 1}. {question.question}
-              </Typography>
-              <FormControl component="fieldset">
-                <RadioGroup
-                  value={lessonAnswers[lesson.id]?.[question.id] || ''}
-                  onChange={(e) => handleAnswerChange(lesson.id, question.id, parseInt(e.target.value))}
-                >
-                  {question.options.map((option, oIndex) => (
-                    <FormControlLabel
-                      key={oIndex}
-                      value={oIndex}
-                      control={<Radio />}
-                      label={option}
-                    />
-                  ))}
+  const renderLessonStep = (lesson, idx) => (
+    <Step key={lesson.id} active={idx === activeLesson} completed={idx < activeLesson}>
+      <StepLabel>{lesson.title}</StepLabel>
+      <StepContent>
+        <Typography paragraph>{lesson.content}</Typography>
+        {(lesson.questions || []).length > 0 && (
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" gutterBottom>Quick Quiz</Typography>
+            {(lesson.questions || []).map((q) => (
+              <FormControl key={q.id} component="fieldset" sx={{ mb: 2 }}>
+                <Typography sx={{ mb: 1 }}>{q.question}</Typography>
+                <RadioGroup value={lessonAnswers[lesson.id]?.[q.id] ?? ''} onChange={(e) => handleAnswerChange(lesson.id, q.id, e.target.value)}>
+                  {(q.options || []).map((opt) => (<FormControlLabel key={opt} value={opt} control={<Radio />} label={opt} />))}
                 </RadioGroup>
               </FormControl>
-            </Box>
-          ))}
+            ))}
+          </Box>
+        )}
+        <Box sx={{ mb: 2 }}>
+          <Button variant="contained" onClick={() => completeLesson(lesson.id)} disabled={idx !== activeLesson}>Mark Lesson Complete</Button>
         </Box>
-      )}
-      
-      <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-        <Button
-          variant="contained"
-          onClick={() => completeLesson(lesson.id)}
-          disabled={lesson.questions && lesson.questions.length > 0 && 
-            (!lessonAnswers[lesson.id] || 
-             Object.keys(lessonAnswers[lesson.id] || {}).length < lesson.questions.length)}
-        >
-          Complete Lesson
-        </Button>
-      </Box>
-    </Paper>
+      </StepContent>
+    </Step>
   );
 
   const renderModuleDialog = () => (
-    <Dialog
-      open={!!selectedModule}
-      onClose={() => setSelectedModule(null)}
-      maxWidth="md"
-      fullWidth
-    >
-      <DialogTitle>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Avatar sx={{ bgcolor: 'primary.main' }}>
-            {getModuleIcon(selectedModule?.id)}
-          </Avatar>
-          <Typography variant="h6">{selectedModule?.title}</Typography>
-        </Box>
-      </DialogTitle>
+    <Dialog open={!!selectedModule} onClose={() => setSelectedModule(null)} maxWidth="md" fullWidth>
+      <DialogTitle><SchoolIcon sx={{ mr: 1, verticalAlign: 'middle' }} />{selectedModule?.title}</DialogTitle>
       <DialogContent>
-        {selectedModule && (
+        {selectedModule ? (<>
+          <Typography color="text.secondary" paragraph>{selectedModule.description}</Typography>
           <Stepper activeStep={activeLesson} orientation="vertical">
-            {selectedModule.lessons.map((lesson, index) => (
-              <Step key={lesson.id}>
-                <StepLabel>{lesson.title}</StepLabel>
-                <StepContent>
-                  {index === activeLesson && renderLessonContent(lesson)}
-                </StepContent>
-              </Step>
-            ))}
+            {(selectedModule.lessons || []).map((lesson, idx) => renderLessonStep(lesson, idx))}
           </Stepper>
+        </>) : (
+          <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress /></Box>
         )}
       </DialogContent>
       <DialogActions>
@@ -289,189 +191,157 @@ const SecurityTraining = () => {
     </Dialog>
   );
 
-  const renderPhishingSimulation = () => (
-    <Card sx={{ mb: 3 }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Avatar sx={{ mr: 2, bgcolor: 'error.main' }}>
-            <PhishingIcon />
-          </Avatar>
-          <Typography variant="h6">Phishing Simulation</Typography>
-        </Box>
-        
-        <Typography variant="body2" color="textSecondary" paragraph>
-          Test your ability to identify phishing attempts with realistic simulations.
-        </Typography>
+  if (loading) return (<Box sx={{ display: 'flex', justifyContent: 'center', p: 6 }}><CircularProgress /></Box>);
 
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          <Button
-            variant="contained"
-            color="success"
-            onClick={() => startPhishingSimulation('beginner')}
-            disabled={simulationLoading}
-            startIcon={simulationLoading ? <CircularProgress size={16} /> : <PlayIcon />}
-          >
-            Beginner
-          </Button>
-          <Button
-            variant="contained"
-            color="warning"
-            onClick={() => startPhishingSimulation('intermediate')}
-            disabled={simulationLoading}
-            startIcon={simulationLoading ? <CircularProgress size={16} /> : <PlayIcon />}
-          >
-            Intermediate
-          </Button>
-          <Button
-            variant="contained"
-            color="error"
-            onClick={() => startPhishingSimulation('advanced')}
-            disabled={simulationLoading}
-            startIcon={simulationLoading ? <CircularProgress size={16} /> : <PlayIcon />}
-          >
-            Advanced
-          </Button>
-        </Box>
-
-        {phishingSimulation && (
-          <Alert severity="info" sx={{ mt: 2 }}>
-            Simulation started! Check your email for the phishing test.
-          </Alert>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  const renderProgressOverview = () => (
-    <Card sx={{ mb: 3 }}>
-      <CardContent>
-        <Typography variant="h6" gutterBottom>
-          <TrophyIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-          Your Progress
-        </Typography>
-        
-        {progress && (
-          <Grid container spacing={3}>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box textAlign="center">
-                <Typography variant="h4" color="primary">
-                  {progress.overallProgress?.completionPercentage || 0}%
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Overall Completion
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box textAlign="center">
-                <Typography variant="h4" color="warning.main">
-                  {progress.overallProgress?.overallScore || 0}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Average Score
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box textAlign="center">
-                <Typography variant="h4" color="success.main">
-                  {progress.overallProgress?.completedModules || 0}
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Modules Completed
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={12} sm={6} md={3}>
-              <Box textAlign="center">
-                <Typography variant="h4" color="info.main">
-                  {progress.overallProgress?.totalTimeSpent || 0}m
-                </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  Time Spent
-                </Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const completedModules = progress?.overallProgress?.completedModules || 0;
+  const totalModules = modules.length || 0;
+  const overallScore = progress?.overallProgress?.overallScore ?? 0;
 
   return (
     <Box>
-      <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 3 }}>
-        Security Training
-      </Typography>
-
-      <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
-        <Tab label="Training Modules" icon={<SchoolIcon />} />
-        <Tab label="Phishing Simulation" icon={<PhishingIcon />} />
-        <Tab label="Achievements" icon={<TrophyIcon />} />
-      </Tabs>
-
+      <Typography variant="h4" gutterBottom>Security Training</Typography>
+      <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 3 }}>Learn to spot rotten potatoes (risky patterns) and keep your fields fresh and secure.</Typography>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid item xs={12} md={4}>
+          <Paper sx={{ p: 2 }}>
+            <Typography variant="subtitle2" color="text.secondary">Overall Progress</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, mb: 1 }}>
+              <StarIcon color="warning" sx={{ mr: 1 }} />
+              <Typography variant="h6">{overallScore}%</Typography>
+            </Box>
+            <LinearProgress variant="determinate" value={overallScore} />
+            <Typography variant="caption" color="text.secondary">{completedModules} / {totalModules} modules complete</Typography>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={8}>
+          <Paper sx={{ p: 2 }}>
+            <Tabs value={tabValue} onChange={(e, v) => setTabValue(v)}>
+              <Tab label="Training Modules" />
+              <Tab label="Phishing Simulation" />
+              <Tab label="Achievements" />
+              <Tab label="Certificates" />
+            </Tabs>
+          </Paper>
+        </Grid>
+      </Grid>
       {tabValue === 0 && (
-        <>
-          {renderProgressOverview()}
-          
-          <Typography variant="h6" gutterBottom sx={{ mt: 4, mb: 2 }}>
-            Available Training Modules
-          </Typography>
-          
-          <Grid container spacing={3}>
-            {modules.map(module => (
-              <Grid item xs={12} md={6} lg={4} key={module.id}>
-                {renderModuleCard(module)}
-              </Grid>
-            ))}
-          </Grid>
-        </>
+        <Grid container spacing={2}>
+          {modules.map((m) => (
+            <Grid item xs={12} md={6} lg={4} key={m.id}>{renderModuleCard(m)}</Grid>
+          ))}
+          {modules.length === 0 && (<Grid item xs={12}><Alert severity="info">No training modules available yet.</Alert></Grid>)}
+        </Grid>
       )}
-
-      {tabValue === 1 && renderPhishingSimulation()}
-
-      {tabValue === 2 && (
+      {tabValue === 1 && (
         <Card>
           <CardContent>
-            <Typography variant="h6" gutterBottom>
-              <CertificateIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
-              Achievements & Certificates
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Complete training modules to earn achievements and certifications.
-            </Typography>
-            
-            {progress?.achievements && progress.achievements.length > 0 ? (
-              <List>
-                {progress.achievements.map((achievement, index) => (
-                  <ListItem key={index}>
-                    <ListItemIcon>
-                      <TrophyIcon color="warning" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary={achievement.title}
-                      secondary={achievement.description}
-                    />
-                  </ListItem>
-                ))}
-              </List>
+            <Typography variant="h6" gutterBottom><PhishingIcon sx={{ mr: 1, verticalAlign: 'middle' }} /> Phishing Simulation</Typography>
+            {!phishingSimulation ? (
+              <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <Typography variant="body2" color="text.secondary">Choose difficulty:</Typography>
+                <Button size="small" variant="outlined" disabled={simulationLoading} onClick={() => startPhishingSimulation('beginner')}>Beginner</Button>
+                <Button size="small" variant="outlined" disabled={simulationLoading} onClick={() => startPhishingSimulation('intermediate')}>Intermediate</Button>
+                <Button size="small" variant="outlined" disabled={simulationLoading} onClick={() => startPhishingSimulation('advanced')}>Advanced</Button>
+                {simulationLoading && <CircularProgress size={16} />}
+              </Box>
             ) : (
-              <Alert severity="info" sx={{ mt: 2 }}>
-                Complete training modules to start earning achievements!
-              </Alert>
+              <>
+                <Typography variant="subtitle2" color="text.secondary" gutterBottom>Simulation details</Typography>
+                <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
+                  {phishingSimulation.type === 'email' && (
+                    <>
+                      <Typography gutterBottom>{phishingSimulation.subject || 'Suspicious email'}</Typography>
+                      <Typography variant="body2" color="text.secondary">From: {phishingSimulation.sender || 'unknown@spudmail.com'}</Typography>
+                      <Typography variant="body2" color="text.secondary">Preview: {phishingSimulation.preview || 'Click this urgent link to verify your account.'}</Typography>
+                    </>
+                  )}
+                  {phishingSimulation.type === 'website' && (
+                    <>
+                      <Typography gutterBottom>Suspicious Website</Typography>
+                      <Typography variant="body2" color="text.secondary">URL: {phishingSimulation.url}</Typography>
+                      <Typography variant="body2" color="text.secondary">Preview: {phishingSimulation.preview}</Typography>
+                    </>
+                  )}
+                  {phishingSimulation.type === 'social' && (
+                    <>
+                      <Typography gutterBottom>Scenario: {phishingSimulation.scenario}</Typography>
+                      <Typography variant="body2" color="text.secondary">Preview: {phishingSimulation.preview}</Typography>
+                    </>
+                  )}
+                  {phishingSimulation.content && (
+                    <Typography sx={{ mt: 1 }}>{phishingSimulation.content}</Typography>
+                  )}
+                  {phishingSimulation.tips && (
+                    <Alert severity="info" sx={{ mt: 2 }}>{phishingSimulation.tips}</Alert>
+                  )}
+                </Paper>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>Red flags you noticed</Typography>
+                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
+                  {(phishingSimulation.flags || ['Suspicious sender', 'Urgent tone', 'Link mismatch', 'Attachment']).map((flag) => (
+                    <Chip key={flag} label={flag} color={simulationResult.detectedFlags.includes(flag) ? 'warning' : 'default'} onClick={() => {
+                      setSimulationResult((prev) => {
+                        const has = prev.detectedFlags.includes(flag);
+                        return { ...prev, detectedFlags: has ? prev.detectedFlags.filter((f) => f !== flag) : [...prev.detectedFlags, flag] };
+                      });
+                    }} />
+                  ))}
+                </Box>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                  <Button variant="contained" onClick={() => setSimulationResult((p) => ({ ...p, success: true }))} color="success">This is phishing</Button>
+                  <Button variant="outlined" onClick={() => setSimulationResult((p) => ({ ...p, success: false }))} color="info">Looks legitimate</Button>
+                  <Button variant="contained" onClick={submitSimulation} disabled={simulationResult.success === null}>Submit Result</Button>
+                  <Button onClick={() => setPhishingSimulation(null)}>Reset</Button>
+                </Box>
+              </>
             )}
           </CardContent>
         </Card>
       )}
-
+      {tabValue === 2 && (
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom><TrophyIcon sx={{ mr: 1, verticalAlign: 'middle' }} /> Achievements</Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>Potato badges earned during your training journey.</Typography>
+            {achievementsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress size={24} /></Box>
+            ) : achievements && achievements.length > 0 ? (
+              <List>
+                {achievements.map((a, idx) => (
+                  <ListItem key={idx}>
+                    <ListItemIcon><VerifiedIcon color="success" /></ListItemIcon>
+                    <ListItemText primary={a.title} secondary={a.description} />
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Alert severity="info" sx={{ mt: 2 }}>Complete training modules to start earning achievements!</Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
+      {tabValue === 3 && (
+        <Card>
+          <CardContent>
+            <Typography variant="h6" gutterBottom><VerifiedIcon sx={{ mr: 1, verticalAlign: 'middle' }} /> Certificates</Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>View certificates issued for completed modules.</Typography>
+            {certsLoading ? (
+              <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}><CircularProgress size={24} /></Box>
+            ) : certificates && certificates.length > 0 ? (
+              <List>
+                {certificates.map((c, idx) => (
+                  <ListItem key={idx} sx={{ border: 1, borderColor: 'divider', borderRadius: 1, mb: 1 }}>
+                    <ListItemIcon><VerifiedIcon color="primary" /></ListItemIcon>
+                    <ListItemText primary={`${c.title} (${c.score || 0}%)`} secondary={`Issued: ${c.issuedAt ? new Date(c.issuedAt).toLocaleString() : 'N/A'}`} />
+                    {c.url && (<Button size="small" component="a" href={c.url} target="_blank" rel="noreferrer">View</Button>)}
+                  </ListItem>
+                ))}
+              </List>
+            ) : (
+              <Alert severity="info">No certificates yet—complete modules to earn yours.</Alert>
+            )}
+          </CardContent>
+        </Card>
+      )}
       {renderModuleDialog()}
     </Box>
   );

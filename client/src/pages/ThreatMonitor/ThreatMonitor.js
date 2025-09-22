@@ -100,8 +100,17 @@ const ThreatMonitor = () => {
 
   return (
     <Box data-testid="threat-monitor-page">
-      <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 3 }}>
+      <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
         Real-time Threat Monitor
+      </Typography>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 3 }}>
+        Keep an eye on the sack: spot rotten potatoes before they spread.
+      </Typography>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 3 }}>
+        Keep watch over the potato patch—flag rotten spuds fast and protect the harvest.
+      </Typography>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 3 }}>
+        Watch the fryer—keep an eye on sizzling threats to your precious spuds in real time.
       </Typography>
 
       {/* Connection Status */}
