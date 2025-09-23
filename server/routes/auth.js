@@ -158,7 +158,15 @@ router.post('/register', registerLimiter, validateRegister, async (req, res) => 
       }
     });
 
-    // TODO: Send email verification email
+    // Post-registration hook (non-blocking)
+    try {
+      const { onUserRegistered } = require('../services/registrationHooks');
+      onUserRegistered(user);
+    } catch (hookErr) {
+      console.error('Registration hook error:', hookErr.message);
+    }
+
+    // TODO: Send email verification email (will be implemented later)
     console.log(`New user registered: ${email}`);
 
   } catch (error) {
