@@ -2,14 +2,13 @@ const express = require('express');
 const { body, query, validationResult } = require('express-validator');
 const VulnerabilityReport = require('../models/VulnerabilityReport');
 const vulnerabilityScanner = require('../services/vulnerabilityScanner');
-const { auth, requireSubscription, requireEmailVerification } = require('../middleware/auth');
+const { auth, requireSubscription } = require('../middleware/auth');
 const { isValidIP, isValidDomain, isValidURL, getPagination, createPaginationMeta } = require('../utils/helpers');
 
 const router = express.Router();
 
 // All routes require authentication
 router.use(auth);
-router.use(requireEmailVerification);
 
 // @route   POST /api/scans
 // @desc    Start a new vulnerability scan
