@@ -1,13 +1,15 @@
-import React from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
+import React from "react";
+import { Box, CircularProgress, Typography } from "@mui/material";
 
-const LoadingSpinner = ({ 
-  size = 40, 
-  message = 'Loading...', 
+const LoadingSpinner = ({
+  size = 40,
+  message = "Loading...",
   fullScreen = true,
-  color = 'primary' 
+  color = "primary",
+  videoSrc = "loader.mp4",
+  videoSize = 200,
 }) => {
-  const content = (
+  return (
     <Box
       display="flex"
       flexDirection="column"
@@ -16,12 +18,12 @@ const LoadingSpinner = ({
       gap={2}
       sx={{
         ...(fullScreen && {
-          position: 'fixed',
+          position: "fixed",
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.9)',
+          backgroundColor: "rgba(255, 255, 255, 0.9)",
           zIndex: 9999,
         }),
         ...(!fullScreen && {
@@ -30,7 +32,23 @@ const LoadingSpinner = ({
         }),
       }}
     >
-      <CircularProgress size={size} color={color} />
+      {videoSrc && (
+        <video
+          src={videoSrc}
+          autoPlay
+          loop
+          muted
+          playsInline
+          style={{
+            width: videoSize,
+            height: "auto",
+            borderRadius: 8,
+          }}
+        />
+      )}
+
+      {/* <CircularProgress size={size} color={color} /> */}
+
       {message && (
         <Typography variant="body1" color="textSecondary">
           {message}
@@ -38,8 +56,6 @@ const LoadingSpinner = ({
       )}
     </Box>
   );
-
-  return content;
 };
 
 export default LoadingSpinner;
