@@ -3,7 +3,7 @@ const { body, query, validationResult } = require('express-validator');
 const VulnerabilityReport = require('../models/VulnerabilityReport');
 const vulnerabilityScanner = require('../services/vulnerabilityScanner');
 const { auth, requireSubscription, requireEmailVerification } = require('../middleware/auth');
-const { isValidIP, isValidDomain, getPagination, createPaginationMeta } = require('../utils/helpers');
+const { isValidIP, isValidDomain, isValidURL, getPagination, createPaginationMeta } = require('../utils/helpers');
 
 const router = express.Router();
 
@@ -20,7 +20,17 @@ router.post('/', [
     .withMessage('At least one target is required')
     .custom((targets) => {
       for (const target of targets) {
-        if (!isValidIP(target) && !isValidDomain(target)) {
+        // Accept IP, domain, or full URL. If URL, extract hostname and validate.
+        let value = target;
+        if (typeof value === 'string' && /^https?:\/\//i.test(value)) {
+          try {
+            const urlObj = new URL(value);
+            value = urlObj.hostname;
+          } catch (e) {
+            throw new Error(`Invalid URL target: ${target}`);
+          }
+        }
+        if (!isValidIP(value) && !isValidDomain(value)) {
           throw new Error(`Invalid target format: ${target}`);
         }
       }
@@ -62,6 +72,20 @@ router.post('/', [
     }
 
     const { targets, scanType, config } = req.body;
+
+    // Normalize targets: if a target is a URL, use its hostname; lower-case for consistency
+    const normalizedTargets = targets.map((t) => {
+      if (typeof t === 'string' && /^https?:\/\//i.test(t)) {
+        try {
+          const u = new URL(t);
+          return u.hostname.toLowerCase();
+        } catch (e) {
+          // This should be caught by validation, but fallback to original
+          return t;
+        }
+      }
+      return typeof t === 'string' ? t.toLowerCase() : t;
+    });
 
     // Check subscription limits
     const userPlan = req.user.subscription?.plan || 'free';
@@ -120,7 +144,7 @@ router.post('/', [
     };
 
     // Start the scan
-    const result = await vulnerabilityScanner.startScan(req.user.id, targets, scanConfig);
+  const result = await vulnerabilityScanner.startScan(req.user.id, normalizedTargets, scanConfig);
 
     res.status(201).json({
       success: true,
@@ -471,63 +495,84 @@ router.put('/:scanId/vulnerabilities/:vulnId', [
   }
 });
 
-// @route   POST /api/scans/:scanId/export
-// @desc    Export scan report
+// @route   GET /api/scans/:scanId/export
+// @desc    Export scan report (csv|json|pdf)
 // @access  Private
-router.post('/:scanId/export', requireSubscription('pro', 'business', 'enterprise'), [
-  body('format')
-    .isIn(['pdf', 'csv', 'json'])
-    .withMessage('Invalid export format'),
-  
-  body('includeResolved')
-    .optional()
-    .isBoolean()
-    .withMessage('includeResolved must be boolean')
-], async (req, res) => {
+router.get('/:scanId/export', requireSubscription('pro', 'business', 'enterprise'), async (req, res) => {
   try {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errors.array()
-      });
+    const format = (req.query.format || 'json').toString().toLowerCase();
+    if (!['csv', 'json', 'pdf'].includes(format)) {
+      return res.status(400).json({ success: false, message: 'Invalid export format' });
     }
 
     const { scanId } = req.params;
-    const { format, includeResolved = true } = req.body;
+    const includeResolved = req.query.includeResolved !== 'false';
 
-    const scan = await VulnerabilityReport.findOne({ 
-      scanId, 
-      userId: req.user.id 
-    });
-
+    const scan = await VulnerabilityReport.findOne({ scanId, userId: req.user.id });
     if (!scan) {
-      return res.status(404).json({
-        success: false,
-        message: 'Scan not found'
-      });
+      return res.status(404).json({ success: false, message: 'Scan not found' });
     }
 
-    // TODO: Implement actual export functionality
-    // This would generate the report in the requested format
-    
-    res.json({
-      success: true,
-      message: `Report export in ${format} format initiated`,
-      data: {
-        scanId,
-        format,
-        status: 'processing'
-      }
-    });
+    const vulns = (scan.vulnerabilities || []).filter(v => includeResolved || v.status !== 'resolved');
 
+    if (format === 'json') {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="scan-${scanId}.json"`);
+      return res.send(JSON.stringify({
+        scanId: scan.scanId,
+        targets: scan.targets,
+        summary: scan.summary,
+        vulnerabilities: vulns
+      }, null, 2));
+    }
+
+    if (format === 'csv') {
+      const headers = [
+        'id','title','severity','category','target','port','service','verified','confidence','method','evidenceLevel','cvssScore','cwe','status'
+      ];
+      const escape = (v) => {
+        if (v == null) return '';
+        const s = String(v).replace(/"/g, '""');
+        return /[",\n]/.test(s) ? `"${s}"` : s;
+      };
+      const rows = vulns.map(v => [
+        v.id || '', v.title || v.name || '', v.severity || '', v.category || '', v.target || '', v.port || '', v.service || '',
+        typeof v.verified === 'boolean' ? v.verified : '', typeof v.confidence === 'number' ? v.confidence : '', v.method || '', v.evidenceLevel || '',
+        v.cvssScore != null ? v.cvssScore : '', v.cwe || '', v.status || ''
+      ].map(escape).join(','));
+      const csv = [headers.join(','), ...rows].join('\n');
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="scan-${scanId}.csv"`);
+      return res.send(csv);
+    }
+
+    if (format === 'pdf') {
+      const PDFDocument = require('pdfkit');
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="scan-${scanId}.pdf"`);
+      const doc = new PDFDocument({ margin: 40, size: 'A4' });
+      doc.pipe(res);
+      doc.fontSize(18).text('Cyber Guard Pro - Scan Report', { underline: true });
+      doc.moveDown();
+      doc.fontSize(12).text(`Scan ID: ${scan.scanId}`);
+      doc.text(`Targets: ${scan.targets.join(', ')}`);
+      doc.text(`Total Vulnerabilities: ${scan.summary?.totalVulnerabilities || 0}`);
+      doc.moveDown();
+      vulns.forEach((v, i) => {
+        doc.fontSize(14).text(`${i + 1}. ${v.title || v.name || 'Untitled'}`, { continued: false });
+        doc.fontSize(10).text(`Severity: ${v.severity} | Category: ${v.category} | Target: ${v.target}`);
+        if (v.port) doc.text(`Port: ${v.port} ${v.service ? `(${v.service})` : ''}`);
+        if (v.description) doc.text(v.description);
+        if (v.solution) doc.text(`Solution: ${v.solution}`);
+        doc.moveDown();
+      });
+      doc.end();
+    }
   } catch (error) {
     console.error('Export scan error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Server error while exporting scan'
-    });
+    if (!res.headersSent) {
+      res.status(500).json({ success: false, message: 'Server error while exporting scan' });
+    }
   }
 });
 

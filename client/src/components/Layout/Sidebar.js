@@ -91,6 +91,9 @@ const Sidebar = ({ onItemClick }) => {
         <Typography variant="body2" color="textSecondary">
           Cybersecurity Platform
         </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Proudly potato-themed 🥔
+        </Typography>
       </Box>
 
       <Divider />

@@ -61,7 +61,7 @@ const Reports = () => {
     try {
       const response = await reportsAPI.exportReports(type, {
         format,
-        ...filters
+        ...filters,
       });
       
       if (format === 'csv') {
@@ -623,7 +623,7 @@ const Reports = () => {
 
   return (
     <Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
         <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold' }}>
           Reports & Analytics
         </Typography>
@@ -636,6 +636,9 @@ const Reports = () => {
           Export Reports
         </Button>
       </Box>
+      <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 3 }}>
+        Slice and dice your data like golden fries—crunchy insights, zero fluff.
+      </Typography>
 
       <Tabs value={tabValue} onChange={(e, newValue) => setTabValue(newValue)} sx={{ mb: 3 }}>
         <Tab label="Overview" icon={<AssessmentIcon />} />
