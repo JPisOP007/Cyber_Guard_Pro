@@ -27,6 +27,8 @@ import {
 
 import Sidebar from './Sidebar';
 import NotificationPanel from './NotificationPanel';
+import PotatoBackground from '../common/PotatoBackground';
+import { PotatoLegend } from '../common/PotatoLexicon';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 
@@ -94,6 +96,11 @@ const Layout = ({ children }) => {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             CyberGuard Pro
           </Typography>
+
+          {/* Potato legend (compact) to hint at vocabulary */}
+          <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', mr: 2 }}>
+            <PotatoLegend compact />
+          </Box>
 
           {/* Connection Status */}
           <Box
@@ -218,15 +225,25 @@ const Layout = ({ children }) => {
       <Box
         component="main"
         sx={{
+          position: 'relative',
           flexGrow: 1,
           p: 3,
           width: { lg: `calc(100% - ${drawerWidth}px)` },
           minHeight: '100vh',
           backgroundColor: 'background.default',
+          overflow: 'hidden',
         }}
       >
+        {/* Potato background behind content, pointer-events disabled inside component */}
+        <PotatoBackground style={{ opacity: 0.18 }} />
         <Toolbar />
-        {children}
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          {children}
+        </Box>
+        {/* Compact potato legend tucked in the corner */}
+        <Box sx={{ position: 'absolute', right: 16, bottom: 16, zIndex: 1, opacity: 0.9 }}>
+          <PotatoLegend compact sx={{ bgcolor: 'background.paper', p: 1, borderRadius: 1, boxShadow: 1 }} />
+        </Box>
       </Box>
 
       {/* Notification Panel */}

@@ -26,7 +26,8 @@
     "node-nmap": "^4.0.0",
     "nodemailer": "^6.9.4",
     "redis": "^4.6.8",
-    "socket.io": "^4.7.2"
+    "socket.io": "^4.7.2",
+    "pdfkit": "^0.13.0"
   },
   "devDependencies": {
     "jest": "^29.6.4",
