@@ -121,7 +121,9 @@ Reports:
   - Ensure both client (3000) and server (5000) are running
   - Increase timeouts if running on slow hardware
 
+## 📦 Build & deploy
+- Build client: `npm run build` (from repo root invokes client build)
+- Heroku/Render/Other: Ensure `server/.env` is configured and `heroku-postbuild` script installs client and builds
 
 ## 📄 License
-
 MIT
