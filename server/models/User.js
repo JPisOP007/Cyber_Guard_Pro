@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema({
   },
   profile: {
     avatar: String,
+    avatarUrl: String,
     company: String,
     jobTitle: String,
     phone: String,
@@ -75,6 +76,14 @@ const userSchema = new mongoose.Schema({
         default: false
       }
     }
+  },
+  preferences: {
+    theme: { type: String, enum: ['system','light','dark','potato'], default: 'system' },
+    notifications: {
+      email: { type: Boolean, default: true },
+      push: { type: Boolean, default: false },
+    },
+    newsletter: { type: Boolean, default: false },
   },
   lastLogin: Date,
   isEmailVerified: {

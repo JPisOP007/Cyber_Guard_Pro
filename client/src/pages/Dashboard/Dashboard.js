@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { driver } from 'driver.js';
+import 'driver.js/dist/driver.css';
 import {
   Grid,
   Card,
@@ -45,6 +47,7 @@ import { reportsAPI } from '../../services/api';
 import { useSocket } from '../../context/SocketContext';
 import { useThreats } from '../../context/ThreatsContext';
 import LoadingSpinner from '../../components/common/LoadingSpinner';
+import { useAuth } from '../../context/AuthContext';
 
 // Register Chart.js components
 ChartJS.register(
@@ -63,7 +66,71 @@ const Dashboard = () => {
   const theme = useTheme();
   const { threatAlerts, scanUpdates, connected, socket } = useSocket();
   const { recentThreats, setRecentThreats } = useThreats();
+  const { user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+
+  // Onboarding tour using driver.js – runs once per user
+  useEffect(() => {
+    try {
+      const userId = user?._id || user?.id;
+      if (!userId) return; // wait until user is loaded
+      const tourKey = `tour:${userId}`;
+      const seen = localStorage.getItem(tourKey);
+      if (!seen || seen === 'false') {
+        const tour = driver({
+          showProgress: true,
+          steps: [
+            {
+              element: '#driver0',
+              popover: {
+                title: 'Security Stats',
+                description: 'It shows the statistics of the actions you have performed. 🥔',
+                side: 'left',
+                align: 'start',
+              },
+            },
+            {
+              element: '#driver1',
+              popover: {
+                title: 'Security Trend Graph',
+                description: 'Provides visual representation of the analytics provided by the system. 🍟',
+                side: 'bottom',
+                align: 'start',
+              },
+            },
+            {
+              element: '#driver2',
+              popover: {
+                title: 'Recent Activities',
+                description: 'Provides the log of all recent activities you have made. 🎉',
+                side: 'bottom',
+                align: 'start',
+              },
+            },
+            {
+              element: '#driver3',
+              popover: {
+                title: 'Status',
+                description: 'It provides the server status and live monitoring. 🕺',
+                side: 'right',
+                align: 'start',
+              },
+            },
+            {
+              popover: {
+                title: 'We Secure You',
+                description: 'And that is all, go ahead and start exploring our application.',
+              },
+            },
+          ],
+        });
+        localStorage.setItem(tourKey, 'true');
+        tour.drive();
+      }
+    } catch (_) {
+      // no-op
+    }
+  }, [user]);
 
   // Fetch dashboard data
   const { 
@@ -293,7 +360,7 @@ const Dashboard = () => {
                 backgroundColor: connected ? 'success.main' : 'error.main',
               }}
             />
-            <Typography variant="body2" color="textSecondary">
+            <Typography id="driver3" variant="body2" color="textSecondary">
               {connected ? 'Live Monitoring' : 'Offline'}
             </Typography>
           </Box>
@@ -306,8 +373,8 @@ const Dashboard = () => {
         Spud central: mash your insights, roast the risks, and keep the tubers secure.
       </Typography>
 
-      {/* Stats Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+  {/* Stats Cards */}
+  <Grid id="driver0" container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} sm={6} md={3}>
           <SecurityScoreCard />
         </Grid>
@@ -370,8 +437,8 @@ const Dashboard = () => {
         </Grid>
       </Grid>
 
-      {/* Charts Row */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+  {/* Charts Row */}
+  <Grid id="driver1" container spacing={3} sx={{ mb: 3 }}>
         <Grid item xs={12} lg={8}>
           <Card>
             <CardContent>
@@ -427,7 +494,7 @@ const Dashboard = () => {
       </Grid>
 
       {/* Recent Activity */}
-      <Grid container spacing={3}>
+      <Grid id="driver2" container spacing={3}>
         <Grid item xs={12} lg={6}>
           <Card>
             <CardContent>

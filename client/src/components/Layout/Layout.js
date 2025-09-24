@@ -31,6 +31,7 @@ import PotatoBackground from '../common/PotatoBackground';
 import { PotatoLegend } from '../common/PotatoLexicon';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 280;
 
@@ -43,6 +44,7 @@ const Layout = ({ children }) => {
   
   const { user, logout } = useAuth();
   const { threatAlerts, connected } = useSocket();
+  const navigate = useNavigate();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -148,7 +150,6 @@ const Layout = ({ children }) => {
           >
             <Avatar
               sx={{ width: 32, height: 32 }}
-              src={user?.profile?.avatar}
               alt={user?.fullName}
             >
               {user?.firstName?.[0]}{user?.lastName?.[0]}
@@ -162,11 +163,11 @@ const Layout = ({ children }) => {
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            <MenuItem onClick={handleProfileMenuClose}>
+            <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/profile'); }}>
               <PersonIcon sx={{ mr: 1 }} />
               Profile
             </MenuItem>
-            <MenuItem onClick={handleProfileMenuClose}>
+            <MenuItem onClick={() => { handleProfileMenuClose(); navigate('/settings'); }}>
               <SettingsIcon sx={{ mr: 1 }} />
               Settings
             </MenuItem>

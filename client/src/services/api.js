@@ -98,8 +98,9 @@ export const userAPI = {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
   deleteAccount: () => api.delete('/users/account'),
-  getNotificationSettings: () => api.get('/users/notifications'),
-  updateNotificationSettings: (settings) => api.put('/users/notifications', settings),
+  // Convenience wrappers mapping to preferences route
+  getNotificationSettings: () => api.get('/users/profile'),
+  updateNotificationSettings: (settings) => api.put('/users/preferences', settings),
 };
 
 export const scanAPI = {

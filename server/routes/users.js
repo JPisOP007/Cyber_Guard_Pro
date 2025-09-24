@@ -4,10 +4,27 @@ const User = require('../models/User');
 const SecurityProfile = require('../models/SecurityProfile');
 const { auth, authorize, requireEmailVerification } = require('../middleware/auth');
 const { sanitizeInput, generateApiKey } = require('../utils/helpers');
+const bcrypt = require('bcryptjs');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
 const router = express.Router();
 
-// All routes require authentication
+// Multer storage for avatars
+const uploadDir = path.join(__dirname, '..', 'uploads', 'avatars');
+// Ensure upload directory exists
+try { fs.mkdirSync(uploadDir, { recursive: true }); } catch (_) {}
+const storage = multer.diskStorage({
+  destination: uploadDir,
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname || '').toLowerCase();
+    cb(null, `${req.user.id}-${Date.now()}${ext || '.png'}`);
+  },
+});
+const upload = multer({ storage });
+
+// All routes require auth
 router.use(auth);
 
 // @route   GET /api/users/profile
@@ -575,6 +592,79 @@ router.get('/', authorize('admin'), async (req, res) => {
       message: 'Server error while fetching users'
     });
   }
+});
+
+// Get my profile
+router.get('/me', async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id).lean();
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    const { password, __v, ...safe } = user;
+    res.json(safe);
+  } catch (e) { next(e); }
+});
+
+// Update my profile details
+router.put('/me', async (req, res, next) => {
+  try {
+    const allowed = ['firstName','lastName','title','company','bio','phone','timezone'];
+    const updates = {};
+    for (const k of allowed) if (k in req.body) updates[`profile.${k}`] = req.body[k];
+    const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).lean();
+    res.json({ ok: true, user });
+  } catch (e) { next(e); }
+});
+
+// Update preferences
+router.put('/preferences', async (req, res, next) => {
+  try {
+    const pref = req.body || {};
+    const updates = {
+      'preferences.theme': pref.theme,
+      'preferences.notifications.email': !!pref?.notifications?.email,
+      'preferences.notifications.push': !!pref?.notifications?.push,
+      'preferences.newsletter': !!pref.newsletter,
+    };
+    const user = await User.findByIdAndUpdate(req.user.id, { $set: updates }, { new: true }).lean();
+    res.json({ ok: true, preferences: user.preferences });
+  } catch (e) { next(e); }
+});
+
+// Change password
+router.post('/change-password', async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Missing fields' });
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const matches = user.comparePassword
+      ? await user.comparePassword(currentPassword)
+      : await bcrypt.compare(currentPassword, user.password);
+    if (!matches) return res.status(400).json({ message: 'Current password incorrect' });
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+    await user.save();
+    res.json({ ok: true });
+  } catch (e) { next(e); }
+});
+
+// Upload avatar
+router.post('/avatar', upload.single('avatar'), async (req, res, next) => {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'No file' });
+    const relativePath = `/uploads/avatars/${req.file.filename}`;
+    // Build absolute URL for cross-origin clients (e.g., CRA on :3000)
+    const base = process.env.SERVER_PUBLIC_URL
+      || `${req.protocol}://${req.get('host')}`;
+    const absoluteUrl = `${base}${relativePath}`;
+    // Save both: keep backward-compatible relative path in "avatar", absolute in "avatarUrl"
+    await User.findByIdAndUpdate(req.user.id, {
+      $set: { 'profile.avatar': relativePath, 'profile.avatarUrl': absoluteUrl }
+    });
+    res.json({ ok: true, avatarUrl: absoluteUrl, avatar: relativePath });
+  } catch (e) { next(e); }
 });
 
 module.exports = router;
